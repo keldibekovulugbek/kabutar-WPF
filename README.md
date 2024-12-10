@@ -64,6 +64,12 @@ We ❤️ contributions!
 Feel free to fork this repository and submit a pull request with your improvements. Let’s create something amazing together! 🌟
 
 ---
+### 🎨 Login Page in light and dark themes:
+
+![white login](https://github.com/user-attachments/assets/af728e7a-453a-4c35-a122-1e85e715e33a)
+![black login](https://github.com/user-attachments/assets/a0b439aa-777a-4c46-a28f-10b7a1ee105a)
+
+
 
 ### 📜 License
 This project is licensed under the **MIT License**. See the `LICENSE` file for more details.
