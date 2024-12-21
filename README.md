@@ -1,6 +1,6 @@
 # 🕊️ Kabutar Frontend
 
-Welcome to the **Kabutar Frontend**! This is the cross-platform client interface for **Kabutar Messenger**, built with **.NET MAUI**. It provides a sleek and intuitive UI for a seamless user experience on both Android and Windows platforms. 🚀
+Welcome to the **Kabutar Frontend**! This is the cross-platform client interface for **Kabutar Messenger**, built with **.NET WPF**. It provides a sleek and intuitive UI for a seamless user experience on both Windows platform. 🚀
 
 ---
 
@@ -9,12 +9,12 @@ Welcome to the **Kabutar Frontend**! This is the cross-platform client interface
 - 🖼️ **User Profiles**: View and update profile pictures and user details.
 - 📎 **File Attachments**: Send and receive file attachments.
 - 🌓 **Dark and Light Modes**: Adaptive themes for user comfort.
-- 🌍 **Cross-Platform**: Supports both Android and Windows.
+- 🌍 **Cross-Platform**: Supports Windows.
 
 ---
 
 ## 🛠️ Technology Stack
-- **🌐 Frontend Framework**: .NET MAUI
+- **🌐 Frontend Framework**: .NET WPF
 - **💻 Programming Language**: C#
 - **🎨 UI Design**: XAML
 - **🔄 State Management**: MVVM (Model-View-ViewModel) architecture
@@ -24,8 +24,7 @@ Welcome to the **Kabutar Frontend**! This is the cross-platform client interface
 ## 📋 Prerequisites
 Before running the project, ensure you have:
 - ✅ **.NET 8 SDK**
-- ✅ **Visual Studio 2022** with the **Mobile Development with .NET** workload installed
-- ✅ **Emulator or Physical Device** for Android testing (if applicable)
+- ✅ **Visual Studio 2022** with the **Desctop Development with .NET** workload installed
 
 ---
 
@@ -38,7 +37,7 @@ cd kabutar-frontend
 Open the `Kabutar.Frontend.sln` file in Visual Studio 2022.
 
 ### 3️⃣ Run the Application
-- Select the target platform (Android or Windows) from the dropdown in Visual Studio.
+- Select the target platform (Windows) from the dropdown in Visual Studio.
 - Press the `Run` button or use `F5`.
 - The app will launch in the selected emulator or your local machine.
 
