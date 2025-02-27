@@ -1,0 +1,19 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Primary colors for Dark Theme -->
+    <Color x:Key="PrimaryColor">#673AB7</Color>
+    <!-- Deep purple -->
+    <Color x:Key="SecondaryColor">#7C4DFF</Color>
+    <!-- Lighter purple -->
+    <Color x:Key="BackgroundColor">#121212</Color>
+    <!-- Near black -->
+    <Color x:Key="TextColor">#E0E0E0</Color>
+    <!-- Light gray -->
+
+    <!-- Additional UI colors -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
+    <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
+</ResourceDictionary>
