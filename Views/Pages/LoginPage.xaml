@@ -1,57 +1,93 @@
 ﻿<Page x:Class="Kabutar_WPF.Views.Pages.LoginPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:Kabutar_WPF.Views.Pages" xmlns:viewmodels="clr-namespace:Kabutar_WPF.ViewModels" 
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:Kabutar_WPF.Views.Pages"
+      xmlns:viewmodels="clr-namespace:Kabutar_WPF.ViewModels"
       d:DataContext="{d:DesignInstance Type=viewmodels:LoginViewModel}"
       mc:Ignorable="d"
       Title="LoginPage">
 
     <Grid DataContext="{Binding}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Main Content -->
-        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Label Content="Welcome back" Foreground="{StaticResource TextColor}" FontSize="24" HorizontalAlignment="Center"/>
+        <StackPanel Grid.Row="1"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+            <Label Content="Welcome back"
+                   Foreground="{StaticResource TextColor}"
+                   FontSize="24"
+                   HorizontalAlignment="Center" />
 
-            <TextBlock Text="Email or username" Foreground="{StaticResource TextColor}" Margin="0,20,0,0" HorizontalAlignment="Left"/>
-            <TextBox Width="200" Height="30" Margin="0,2,0,0"
+            <TextBlock Text="Email or username"
+                       Foreground="{StaticResource TextColor}"
+                       Margin="0,20,0,0"
+                       HorizontalAlignment="Left" />
+            <TextBox Width="200"
+                     Height="30"
+                     Margin="0,2,0,0"
                      Style="{StaticResource TextBoxStyle}"
                      Background="{StaticResource TextBoxBackground}"
                      Foreground="{StaticResource TextColor}"
                      BorderBrush="{StaticResource AccentColor}"
-                     Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"/>
+                     Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
 
-            <TextBlock Text="Password" Foreground="{StaticResource TextColor}" HorizontalAlignment="Left" Margin="0,12,0,0"/>
-            <TextBox Width="200" Height="30" Margin="0,2,0,0"
-                         Style="{StaticResource TextBoxStyle}"
+            <TextBlock Text="Password"
+                       Foreground="{StaticResource TextColor}"
+                       HorizontalAlignment="Left"
+                       Margin="0,12,0,0" />
+            <PasswordBox Width="200"
+                         Height="30"
+                         Margin="0,2,0,0"
+                         Style="{StaticResource PasswordBoxStyle}"
                          Background="{StaticResource TextBoxBackground}"
                          Foreground="{StaticResource TextColor}"
                          BorderBrush="{StaticResource AccentColor}"
-                         Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBlock Text="{Binding PasswordError, UpdateSourceTrigger=PropertyChanged}" Foreground="Red" FontSize="12" Margin="0,5,0,0"
-           Visibility="{Binding PasswordError, Converter={StaticResource StringToVisibilityConverter}}"/>
+                         PasswordChanged="PasswordBox_PasswordChanged" />
+
+            <TextBlock Text="{Binding PasswordError, UpdateSourceTrigger=PropertyChanged}"
+                       Foreground="Red"
+                       FontSize="12"
+                       Margin="0,5,0,0"
+                       Visibility="{Binding PasswordError, Converter={StaticResource StringToVisibilityConverter}}" />
             <!-- Login Button -->
-            <Button Content="Log in" Width="200" Style="{StaticResource ButtonStyle}"
-        Margin="0,10,0,0" Background="{StaticResource AccentColor}"
-        Foreground="White" Height="30"
-        Command="{Binding LoginCommand}"
-        IsEnabled="{Binding LoginCommand.CanExecute, Mode=OneWay}"/>
+            <Button Content="Log in"
+                    Width="200"
+                    Style="{StaticResource ButtonStyle}"
+                    Margin="0,10,0,0"
+                    Background="{StaticResource AccentColor}"
+                    Foreground="White"
+                    Height="30"
+                    Command="{Binding LoginCommand}"
+                    IsEnabled="{Binding LoginCommand.CanExecute, Mode=OneWay}" />
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="Red"
+                       FontSize="12"
+                       Margin="0,5,0,0"
+                       Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}" />
+
 
             <!-- Register Button -->
-            <Button Content="New user? Sign Up" Background="Transparent"
-                    Foreground="{StaticResource AccentColor}" BorderBrush="Transparent"
-                    Width="200" Margin="0,10,0,0" Height="30"
-                    Command="{Binding NavigateToRegisterCommand}"/>
+            <Button Content="New user? Sign Up"
+                    Background="Transparent"
+                    Foreground="{StaticResource AccentColor}"
+                    BorderBrush="Transparent"
+                    Width="200"
+                    Margin="0,10,0,0"
+                    Height="30"
+                    Click="RegisterButton_Click" />
 
             <!-- Loading Indicator -->
-            <TextBlock Text="Loading..." Foreground="{StaticResource TextColor}"
-                       Margin="0,10,0,0" HorizontalAlignment="Center"
-                       Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            <TextBlock Text="Loading..."
+                       Foreground="{StaticResource TextColor}"
+                       Margin="0,10,0,0"
+                       HorizontalAlignment="Center"
+                       Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
         </StackPanel>
     </Grid>
 </Page>

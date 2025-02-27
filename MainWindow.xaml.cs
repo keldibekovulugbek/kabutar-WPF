@@ -1,7 +1,8 @@
-﻿using System.Windows;
-using Kabutar_WPF.Views.Pages;
+﻿using System.Net.Http;
+using System.Windows;
+using System.Windows.Controls;
 using Kabutar_WPF.Services;
-using System.Net.Http;
+using Kabutar_WPF.Views.Pages;
 
 namespace Kabutar_WPF
 {
@@ -14,17 +15,12 @@ namespace Kabutar_WPF
             InitializeComponent();
             _authService = new AuthService(new HttpClient());
 
-            ShowLoginPage(); // Dastur boshlanganda Login sahifasini ko‘rsatish
+            MainFrame.Navigate(new LoginPage(this, _authService));
         }
 
-        public void ShowLoginPage()
+        public void NavigateTo(Page page)
         {
-            Content = new LoginPage();
-        }
-
-        public void ShowRegisterPage()
-        {
-            Content = new RegisterPage();
+            MainFrame.Navigate(page);
         }
     }
 }

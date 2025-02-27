@@ -7,5 +7,7 @@ namespace Kabutar_WPF.Services
     {
         Task<string> LoginAsync(LoginRequest loginRequest);
         Task<bool> RegisterAsync(RegisterRequest registerRequest);
+        Task<bool> VerifyEmailAsync(VerifyEmail verifyEmail);
+        Task<bool> SendCodeAsync(SendCode sendCode);
     }
 }
