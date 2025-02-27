@@ -1,14 +1,9 @@
-﻿
-
-using Kabutar_WPF.Helpers;
-using Kabutar_WPF.Models;
+﻿using System.Threading.Tasks;
+using System.Windows.Input;
 using Kabutar_WPF.Services;
 using Kabutar_WPF.ViewModels.Common;
-using Kabutar_WPF.Views.Pages;
-using System.Net.Http;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Navigation;
+using Kabutar_WPF.Models;
+using Kabutar_WPF.Helpers;
 
 namespace Kabutar_WPF.ViewModels
 {
@@ -17,14 +12,14 @@ namespace Kabutar_WPF.ViewModels
         private string _username;
         private string _password;
         private string _passwordError;
+        private string _errorMessage; // ⬅ Xatolar uchun yangi property
         private bool _isLoading = false;
         private readonly IAuthService _authService;
 
-        public LoginViewModel()
+        public LoginViewModel(IAuthService authService)
         {
-            _authService = new AuthService(new HttpClient());
-
-            LoginCommand = new RelayCommand(async () => await LoginAsync(), CanExecuteLogin);
+            _authService = authService;
+            LoginCommand = new RelayCommand(async () => await LoginAsync());
         }
 
         public string Username
@@ -57,11 +52,15 @@ namespace Kabutar_WPF.ViewModels
             set
             {
                 SetProperty(ref _passwordError, value);
-                OnPropertyChanged(nameof(PasswordError)); 
+                OnPropertyChanged(nameof(PasswordError));
             }
         }
 
-       
+        public string ErrorMessage // ⬅ UI'da xatolikni chiqarish uchun
+        {
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
+        }
 
         public bool IsLoading
         {
@@ -77,33 +76,33 @@ namespace Kabutar_WPF.ViewModels
 
         private bool CanExecuteLogin()
         {
+            if (string.IsNullOrWhiteSpace(Username) &&
+                   string.IsNullOrWhiteSpace(Password))
+                PasswordError = "Username and password will not be null!";
+            else if (string.IsNullOrWhiteSpace(Username))
+                PasswordError = "Username will not be null!";
+            else if (string.IsNullOrWhiteSpace(Password))
+                PasswordError = "Password will not be null!";
+            else
+                PasswordError = Password.Length < 8 ? "Password must be at least 8 characters" : "";
+
             return !string.IsNullOrWhiteSpace(Username) &&
                    !string.IsNullOrWhiteSpace(Password) &&
-                   string.IsNullOrEmpty(PasswordError); 
+                   string.IsNullOrEmpty(PasswordError);
         }
 
         private void ValidatePassword()
         {
-            if (string.IsNullOrWhiteSpace(Password) || Password.Length < 8)
-            {
-                PasswordError = "Password must be at least 8 characters";
-            }
-            else
-            {
-                PasswordError = "";
-            }
+            PasswordError = Password.Length < 8 ? "Password must be at least 8 characters" : "";
+            (LoginCommand as RelayCommand)?.RaiseCanExecuteChanged();
         }
 
         private async Task LoginAsync()
         {
-
-            if (!CanExecuteLogin())
-            {
-                MessageBox.Show("Iltimos, hamma maydonlarni to‘g‘ri to‘ldiring!", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            if (!CanExecuteLogin()) return;
 
             IsLoading = true;
+            ErrorMessage = ""; // ⬅ Xatoliklarni tozalash
 
             try
             {
@@ -118,16 +117,16 @@ namespace Kabutar_WPF.ViewModels
                 {
                     Settings.Default.AuthToken = token;
                     Settings.Default.Save();
-                    MessageBox.Show("Tizimga muvaffaqiyatli kirdingiz!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    ErrorMessage = "Login successful!";
                 }
                 else
                 {
-                    MessageBox.Show("Login xato! Foydalanuvchi nomi yoki parol noto‘g‘ri!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ErrorMessage = "Login failed! Incorrect username or password.";
                 }
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"Xatolik yuz berdi: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorMessage = $"Error: {ex.Message}";
             }
             finally
             {

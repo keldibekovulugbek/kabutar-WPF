@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
-using Kabutar_WPF.Helpers;
-using Kabutar_WPF.Models;
 using Kabutar_WPF.Services;
 using Kabutar_WPF.ViewModels.Common;
+using Kabutar_WPF.Models;
+using Kabutar_WPF.Helpers;
+using Kabutar_WPF.Views.Pages;
 
 namespace Kabutar_WPF.ViewModels
 {
@@ -15,58 +15,43 @@ namespace Kabutar_WPF.ViewModels
         private string _email;
         private string _username;
         private string _password;
+        private string _confirmPassword;
         private string _passwordError;
-        private bool _isLoading = false;
+        private string _confirmPasswordError;
+        private string _errorMessage; // ⬅ Xatolar uchun yangi property
+        private bool _isLoading;
         private readonly IAuthService _authService;
+        private readonly MainWindow _mainWindow;
 
-        public RegisterViewModel()
+        public RegisterViewModel(MainWindow mainWindow,IAuthService authService)
         {
-            _authService = new AuthService(new System.Net.Http.HttpClient());
+            _authService = authService;
+            _mainWindow = mainWindow;
             RegisterCommand = new RelayCommand(async () => await RegisterAsync(), CanExecuteRegister);
         }
 
         public string Firstname
         {
             get => _firstname;
-            set
-            {
-                SetProperty(ref _firstname, value);
-                OnPropertyChanged(nameof(CanExecuteRegister));
-                (RegisterCommand as RelayCommand)?.RaiseCanExecuteChanged();
-            }
+            set => SetProperty(ref _firstname, value);
         }
 
         public string Lastname
         {
             get => _lastname;
-            set
-            {
-                SetProperty(ref _lastname, value);
-                OnPropertyChanged(nameof(CanExecuteRegister));
-                (RegisterCommand as RelayCommand)?.RaiseCanExecuteChanged();
-            }
+            set => SetProperty(ref _lastname, value);
         }
 
         public string Email
         {
             get => _email;
-            set
-            {
-                SetProperty(ref _email, value);
-                OnPropertyChanged(nameof(CanExecuteRegister));
-                (RegisterCommand as RelayCommand)?.RaiseCanExecuteChanged();
-            }
+            set => SetProperty(ref _email, value);
         }
 
         public string Username
         {
             get => _username;
-            set
-            {
-                SetProperty(ref _username, value);
-                OnPropertyChanged(nameof(CanExecuteRegister));
-                (RegisterCommand as RelayCommand)?.RaiseCanExecuteChanged();
-            }
+            set => SetProperty(ref _username, value);
         }
 
         public string Password
@@ -76,29 +61,41 @@ namespace Kabutar_WPF.ViewModels
             {
                 SetProperty(ref _password, value);
                 ValidatePassword();
-                OnPropertyChanged(nameof(CanExecuteRegister));
-                (RegisterCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+        }
+
+        public string ConfirmPassword
+        {
+            get => _confirmPassword;
+            set
+            {
+                SetProperty(ref _confirmPassword, value);
+                ValidateConfirmPassword();
             }
         }
 
         public string PasswordError
         {
             get => _passwordError;
-            set
-            {
-                SetProperty(ref _passwordError, value);
-                OnPropertyChanged(nameof(PasswordError));
-            }
+            set => SetProperty(ref _passwordError, value);
+        }
+
+        public string ConfirmPasswordError
+        {
+            get => _confirmPasswordError;
+            set => SetProperty(ref _confirmPasswordError, value);
+        }
+
+        public string ErrorMessage 
+        {
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
         }
 
         public bool IsLoading
         {
             get => _isLoading;
-            set
-            {
-                SetProperty(ref _isLoading, value);
-                OnPropertyChanged(nameof(IsLoading));
-            }
+            set => SetProperty(ref _isLoading, value);
         }
 
         public ICommand RegisterCommand { get; }
@@ -110,30 +107,30 @@ namespace Kabutar_WPF.ViewModels
                    !string.IsNullOrWhiteSpace(Email) &&
                    !string.IsNullOrWhiteSpace(Username) &&
                    !string.IsNullOrWhiteSpace(Password) &&
-                   string.IsNullOrEmpty(PasswordError);
+                   !string.IsNullOrWhiteSpace(ConfirmPassword) &&
+                   string.IsNullOrEmpty(PasswordError) &&
+                   string.IsNullOrEmpty(ConfirmPasswordError) &&
+                   !IsLoading;
         }
 
         private void ValidatePassword()
         {
-            if (string.IsNullOrWhiteSpace(Password) || Password.Length < 8)
-            {
-                PasswordError = "Password must be at least 8 characters";
-            }
-            else
-            {
-                PasswordError = "";
-            }
+            PasswordError = Password.Length < 8 ? "Password must be at least 8 characters" : "";
+            (RegisterCommand as RelayCommand)?.RaiseCanExecuteChanged();
+        }
+
+        private void ValidateConfirmPassword()
+        {
+            ConfirmPasswordError = Password != ConfirmPassword ? "Passwords do not match" : "";
+            (RegisterCommand as RelayCommand)?.RaiseCanExecuteChanged();
         }
 
         private async Task RegisterAsync()
         {
-            if (!CanExecuteRegister())
-            {
-                MessageBox.Show("Iltimos, barcha maydonlarni to‘ldiring!", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            if (!CanExecuteRegister()) return;
 
             IsLoading = true;
+            ErrorMessage = ""; 
 
             try
             {
@@ -143,22 +140,23 @@ namespace Kabutar_WPF.ViewModels
                     Lastname = Lastname,
                     Email = Email,
                     Username = Username,
-                    Password = Password,
+                    Password = Password
                 };
 
-                var result = await _authService.RegisterAsync(registerRequest);
-                if (result)
+                bool isRegistered = await _authService.RegisterAsync(registerRequest);
+
+                if (isRegistered)
                 {
-                    MessageBox.Show("Ro‘yxatdan o‘tish muvaffaqiyatli tugadi!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _mainWindow.NavigateTo(new VerifyEmailPage(_mainWindow, _authService, Email));
                 }
                 else
                 {
-                    MessageBox.Show("Ro‘yxatdan o‘tishda xatolik yuz berdi!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ErrorMessage = "Registration failed. Please try again.";
                 }
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"Xatolik yuz berdi: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorMessage = $"Error: {ex.Message}";
             }
             finally
             {

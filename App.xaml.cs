@@ -1,8 +1,4 @@
-﻿using System.Net.Http;
-using System.Windows;
-using System.Windows.Controls;
-using Kabutar_WPF.Services;
-using Kabutar_WPF.Views.Pages;
+﻿using System.Windows;
 
 namespace Kabutar_WPF
 {
@@ -12,13 +8,7 @@ namespace Kabutar_WPF
         {
             base.OnStartup(e);
 
-            var mainFrame = new Frame();
-            var authService = new AuthService(new HttpClient());
-
-            var loginPage = new LoginPage();
-            var mainWindow = new MainWindow { Content = mainFrame };
-
-            mainFrame.Navigate(loginPage);
+            MainWindow mainWindow = new MainWindow();
             mainWindow.Show();
         }
     }
