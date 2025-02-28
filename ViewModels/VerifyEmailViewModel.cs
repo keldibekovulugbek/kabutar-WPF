@@ -32,7 +32,7 @@ namespace Kabutar_WPF.ViewModels
             _mainWindow = mainWindow;
             _authService = authService;
             _email = email;
-            VerifyCodeCommand = new RelayCommand(async () => await VerifyCodeAsync(), CanExecuteVerify);
+            VerifyCodeCommand = new RelayCommand(async () => await VerifyCodeAsync());
             ResendCodeCommand = new RelayCommand(async () => await ResendCodeAsync(), () => _canResendCode);
             NavigateBackCommand = new RelayCommand(NavigateBack);
         }
@@ -128,7 +128,7 @@ namespace Kabutar_WPF.ViewModels
 
                 if (isSent)
                 {
-                    ErrorMessage = "A new verification code has been sent!";
+                    //ErrorMessage = "A new verification code has been sent!";
                     StartResendCooldown();
                 }
                 else

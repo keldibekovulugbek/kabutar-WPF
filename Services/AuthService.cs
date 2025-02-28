@@ -47,7 +47,7 @@ namespace Kabutar_WPF.Services
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/send-code", sendCode);
+                var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/sendcode", sendCode);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception)
@@ -60,7 +60,7 @@ namespace Kabutar_WPF.Services
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/verify-email", verifyEmail);
+                var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/verifyemail", verifyEmail);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception)
