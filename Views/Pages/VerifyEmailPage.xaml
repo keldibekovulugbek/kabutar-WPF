@@ -80,11 +80,11 @@
             </StackPanel>
 
             <!-- Error Message -->
-            <TextBlock Text="{Binding CodeError}"
+            <TextBlock Text="{Binding ErrorMessage}"
                        Foreground="Red"
                        FontSize="12"
                        Margin="0,5,0,0"
-                       Visibility="{Binding CodeError, Converter={StaticResource StringToVisibilityConverter}}" />
+                       Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}" />
 
             <!-- Verify Button -->
             <Button Content="Verify"
@@ -105,6 +105,14 @@
                     Height="30"
                     Command="{Binding ResendCodeCommand}"
                     IsEnabled="{Binding CanResendCode}" />
+
+
+            <!-- Loading Indicator -->
+            <TextBlock Text="Loading..."
+                       Foreground="{StaticResource TextColor}"
+                       Margin="0,10,0,0"
+                       HorizontalAlignment="Center"
+                       Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
 
         </StackPanel>
