@@ -63,11 +63,23 @@ namespace Kabutar_WPF.Services
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var response = await _httpClient.PostAsync(endpoint, content);
-                return response.IsSuccessStatusCode;
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+
+                // Read error message from response
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Server returned error: {response.StatusCode}. {errorContent}");
             }
-            catch
+            catch (HttpRequestException ex)
             {
-                return false;
+                throw new Exception($"Network error: {ex.Message}", ex);
+            }
+            catch (TaskCanceledException)
+            {
+                throw new Exception("Request timeout. Please check your internet connection.");
             }
         }
 
