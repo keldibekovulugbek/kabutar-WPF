@@ -94,7 +94,7 @@
                 <!-- Username TextBox -->
                 <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource ModernTextBoxStyle}"
-                         Tag="username"
+                         Tag="Username or Email"
                          Margin="0,0,0,15"/>
 
                 <!-- Password Box -->

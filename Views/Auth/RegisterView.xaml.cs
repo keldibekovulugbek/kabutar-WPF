@@ -85,5 +85,10 @@ namespace Kabutar_WPF.Views.Auth
                 viewModel.Password = PasswordBox.Password;
             }
         }
+
+        private void PasswordBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            // Placeholder will be handled by template
+        }
     }
 }

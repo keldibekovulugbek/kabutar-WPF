@@ -100,42 +100,15 @@
 
                     <!-- First Name -->
                     <TextBox Text="{Binding Firstname, UpdateSourceTrigger=PropertyChanged}"
+                             Tag="First name"
                              Style="{StaticResource ModernTextBoxStyle}"
                              FontSize="16"
                              Margin="0,0,0,12"
-                             Height="50">
-                        <TextBox.Resources>
-                            <Style TargetType="{x:Type Border}">
-                                <Setter Property="CornerRadius" Value="8"/>
-                            </Style>
-                        </TextBox.Resources>
-                        <TextBox.Tag>
-                            <TextBlock Text="First name"
-                                       FontSize="16"
-                                       Foreground="#999999"
-                                       IsHitTestVisible="False"/>
-                        </TextBox.Tag>
-                    </TextBox>
-                    <TextBlock Text="First name"
-                               FontSize="16"
-                               Foreground="#999999"
-                               Margin="20,0,0,12"
-                               IsHitTestVisible="False"
-                               Visibility="{Binding Firstname, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Firstname}" Value="">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                             Height="50"/>
 
                     <!-- Last Name -->
                     <TextBox Text="{Binding Lastname, UpdateSourceTrigger=PropertyChanged}"
+                             Tag="Last name"
                              Style="{StaticResource ModernTextBoxStyle}"
                              FontSize="16"
                              Margin="0,0,0,12"
@@ -143,6 +116,7 @@
 
                     <!-- Email -->
                     <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+                             Tag="Email"
                              Style="{StaticResource ModernTextBoxStyle}"
                              FontSize="16"
                              Margin="0,0,0,12"
@@ -150,6 +124,7 @@
 
                     <!-- Username -->
                     <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                             Tag="User name"
                              Style="{StaticResource ModernTextBoxStyle}"
                              FontSize="16"
                              Margin="0,0,0,12"
@@ -157,11 +132,13 @@
 
                     <!-- Password -->
                     <PasswordBox x:Name="PasswordBox"
+                                 Tag="Password"
                                  Style="{StaticResource ModernPasswordBoxStyle}"
                                  FontSize="16"
                                  Margin="0,0,0,20"
                                  Height="50"
-                                 PasswordChanged="PasswordBox_PasswordChanged"/>
+                                 PasswordChanged="PasswordBox_PasswordChanged"
+                                 GotFocus="PasswordBox_GotFocus"/>
 
                     <!-- Error Message -->
                     <TextBlock Text="{Binding ErrorMessage}"
