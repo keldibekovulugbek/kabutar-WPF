@@ -194,3 +194,6 @@ $RECYCLE.BIN/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# Temporary files created by Claude Code
+tmpclaude-*-cwd
