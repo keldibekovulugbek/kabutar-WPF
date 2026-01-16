@@ -164,7 +164,7 @@ namespace Kabutar_WPF.Services
                     // Translate common error messages to Uzbek
                     if (message.Contains("User not found") || message.Contains("not found"))
                         return "Foydalanuvchi topilmadi. Email yoki username xato kiritilgan.";
-                    if (message.Contains("Invalid password") || message.Contains("password is incorrect"))
+                    if (message.Contains("Invalid password") || message.Contains("Incorrect password") || message.Contains("password is incorrect"))
                         return "Parol noto'g'ri. Iltimos, qayta urinib ko'ring.";
                     if (message.Contains("Email already exists"))
                         return "Bu email allaqachon ro'yxatdan o'tgan.";
@@ -191,6 +191,10 @@ namespace Kabutar_WPF.Services
                             // Translate validation messages
                             if (message.Contains("Password must be"))
                                 errors.Add("Parol 8-50 ta belgidan iborat bo'lishi va kamida 1 ta kichik, 1 ta katta harf hamda 1 ta raqam bo'lishi kerak.");
+                            else if (message.Contains("Password is required") || message.Contains("Password cannot be empty"))
+                                errors.Add("Parol kiritilishi shart.");
+                            else if (message.Contains("Email is required") || message.Contains("Email cannot be empty"))
+                                errors.Add("Email kiritilishi shart.");
                             else if (message.Contains("Email"))
                                 errors.Add("Email noto'g'ri formatda.");
                             else if (fieldName == "Password")
