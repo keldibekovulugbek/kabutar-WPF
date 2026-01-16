@@ -19,7 +19,7 @@ namespace Kabutar_WPF.ViewModels.Auth
 
         public VerifyEmailViewModel()
         {
-            var apiClient = new ApiClient();
+            var apiClient = ApiClient.Instance;
             _authService = new AuthService(apiClient);
 
             VerifyCommand = new RelayCommand(async _ => await VerifyEmailAsync(), _ => CanVerify());

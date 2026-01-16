@@ -9,10 +9,30 @@ namespace Kabutar_WPF.Services
 {
     public class ApiClient
     {
+        private static ApiClient? _instance;
+        private static readonly object _lock = new object();
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "http://localhost:5237/api/";  // Added trailing slash
 
-        public ApiClient()
+        public static ApiClient Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new ApiClient();
+                        }
+                    }
+                }
+                return _instance;
+            }
+        }
+
+        private ApiClient()
         {
             _httpClient = new HttpClient
             {

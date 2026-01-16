@@ -10,7 +10,7 @@ namespace Kabutar_WPF.Views
         {
             InitializeComponent();
 
-            var apiClient = new ApiClient();
+            var apiClient = ApiClient.Instance;
             var authService = new AuthService(apiClient);
             var searchService = new SearchService(apiClient);
             var messageService = new MessageService(apiClient);

@@ -21,7 +21,7 @@ namespace Kabutar_WPF.ViewModels.Auth
 
         public ForgotPasswordViewModel()
         {
-            var apiClient = new ApiClient();
+            var apiClient = ApiClient.Instance;
             _authService = new AuthService(apiClient);
 
             SendCodeCommand = new RelayCommand(async _ => await SendCodeAsync(), _ => CanSendCode());

@@ -22,7 +22,7 @@ namespace Kabutar_WPF.ViewModels.Auth
 
         public RegisterViewModel()
         {
-            var apiClient = new ApiClient();
+            var apiClient = ApiClient.Instance;
             _authService = new AuthService(apiClient);
 
             RegisterCommand = new RelayCommand(async _ => await RegisterAsync(), _ => CanRegister());

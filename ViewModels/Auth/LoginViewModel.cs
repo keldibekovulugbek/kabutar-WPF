@@ -19,7 +19,7 @@ namespace Kabutar_WPF.ViewModels.Auth
 
         public LoginViewModel()
         {
-            var apiClient = new ApiClient();
+            var apiClient = ApiClient.Instance;
             _authService = new AuthService(apiClient);
 
             LoginCommand = new RelayCommand(async _ => await LoginAsync(), _ => CanLogin());
