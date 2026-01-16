@@ -27,6 +27,7 @@ namespace Kabutar_WPF.ViewModels
         private bool _isLoading;
         private long _myUserId;
         private CancellationTokenSource? _loadMessagesCts;
+        private long? _lastLoadedChatId;
 
         public MainViewModel(IAuthService authService, ISearchService searchService, IMessageService messageService, IChatService chatService)
         {
@@ -150,6 +151,9 @@ namespace Kabutar_WPF.ViewModels
         {
             if (SelectedChat == null) return;
 
+            // Skip if same chat is already loaded
+            if (_lastLoadedChatId == SelectedChat.Id) return;
+
             // Cancel previous load operation
             _loadMessagesCts?.Cancel();
             _loadMessagesCts = new CancellationTokenSource();
@@ -161,6 +165,7 @@ namespace Kabutar_WPF.ViewModels
                 Messages.Clear();
 
                 var messages = await _messageService.GetConversationAsync(SelectedChat.Id);
+                _lastLoadedChatId = SelectedChat.Id;
 
                 // Check if cancelled
                 if (token.IsCancellationRequested) return;
@@ -356,6 +361,8 @@ namespace Kabutar_WPF.ViewModels
 
                     // Clear input
                     MessageText = string.Empty;
+
+                    // Scroll to bottom would be nice here
                 }
             }
             catch (Exception ex)
