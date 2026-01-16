@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -25,6 +26,7 @@ namespace Kabutar_WPF.ViewModels
         private bool _isSearching;
         private bool _isLoading;
         private long _myUserId;
+        private CancellationTokenSource? _loadMessagesCts;
 
         public MainViewModel(IAuthService authService, ISearchService searchService, IMessageService messageService, IChatService chatService)
         {
@@ -148,12 +150,20 @@ namespace Kabutar_WPF.ViewModels
         {
             if (SelectedChat == null) return;
 
+            // Cancel previous load operation
+            _loadMessagesCts?.Cancel();
+            _loadMessagesCts = new CancellationTokenSource();
+            var token = _loadMessagesCts.Token;
+
             try
             {
                 IsLoading = true;
                 Messages.Clear();
 
                 var messages = await _messageService.GetConversationAsync(SelectedChat.Id);
+
+                // Check if cancelled
+                if (token.IsCancellationRequested) return;
 
                 foreach (var msg in messages)
                 {
@@ -163,21 +173,31 @@ namespace Kabutar_WPF.ViewModels
                         ChatId = SelectedChat.Id,
                         SenderId = msg.SenderId,
                         Content = msg.Content,
-                        SentAt = msg.Created,
+                        SentAt = msg.Created.ToLocalTime(), // Convert UTC to local time
                         IsFromMe = msg.SenderId == _myUserId,
                         IsRead = msg.IsRead,
                         IsSent = true
                     });
                 }
             }
+            catch (OperationCanceledException)
+            {
+                // Ignore cancellation
+            }
             catch (Exception ex)
             {
-                MessageBox.Show($"Xabarlarni yuklashda xatolik: {ex.Message}", "Xatolik",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                if (!token.IsCancellationRequested)
+                {
+                    MessageBox.Show($"Xabarlarni yuklashda xatolik: {ex.Message}", "Xatolik",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             finally
             {
-                IsLoading = false;
+                if (!token.IsCancellationRequested)
+                {
+                    IsLoading = false;
+                }
             }
         }
 
