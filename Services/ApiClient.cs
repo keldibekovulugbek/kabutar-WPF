@@ -10,7 +10,7 @@ namespace Kabutar_WPF.Services
     public class ApiClient
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "http://localhost:5237/api";
+        private const string BaseUrl = "http://localhost:5237/api/";  // Added trailing slash
 
         public ApiClient()
         {
@@ -41,7 +41,7 @@ namespace Kabutar_WPF.Services
 
                 // Remove leading slash to work correctly with BaseAddress
                 var relativeEndpoint = endpoint.TrimStart('/');
-                var fullUrl = $"{BaseUrl}/{relativeEndpoint}";
+                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
                 Console.WriteLine($"[API] Sending POST to: {fullUrl}");
                 Console.WriteLine($"[API] Request body: {json}");
 
@@ -77,7 +77,7 @@ namespace Kabutar_WPF.Services
 
                 // Remove leading slash to work correctly with BaseAddress
                 var relativeEndpoint = endpoint.TrimStart('/');
-                var fullUrl = $"{BaseUrl}/{relativeEndpoint}";
+                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
                 Console.WriteLine($"[API] Sending POST to: {fullUrl}");
                 Console.WriteLine($"[API] Request body: {json}");
 
