@@ -24,7 +24,7 @@ namespace Kabutar_WPF.Services
             try
             {
                 var encodedQuery = HttpUtility.UrlEncode(query);
-                var result = await _apiClient.GetAsync<SearchResult>($"/search?query={encodedQuery}");
+                var result = await _apiClient.GetAsync<SearchResult>($"search?query={encodedQuery}");
                 return result;
             }
             catch (Exception ex)

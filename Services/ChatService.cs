@@ -25,7 +25,7 @@ namespace Kabutar_WPF.Services
         {
             try
             {
-                var response = await _apiClient.GetAsync<List<ChatUserDTO>>("/messages/recent");
+                var response = await _apiClient.GetAsync<List<ChatUserDTO>>("messages/recent");
 
                 if (response == null)
                 {

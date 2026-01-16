@@ -39,7 +39,8 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Hamburger Menu -->
-                        <Button Grid.Column="0"
+                        <Button x:Name="HamburgerButton"
+                                Grid.Column="0"
                                 Width="40"
                                 Height="40"
                                 Background="Transparent"
@@ -88,7 +89,7 @@
                 <!-- Hamburger Menu Popup -->
                 <Popup x:Name="HamburgerMenuPopup"
                        Grid.Row="0"
-                       PlacementTarget="{Binding ElementName=HamburgerMenuPopup}"
+                       PlacementTarget="{Binding ElementName=HamburgerButton}"
                        Placement="Bottom"
                        StaysOpen="False"
                        AllowsTransparency="True">

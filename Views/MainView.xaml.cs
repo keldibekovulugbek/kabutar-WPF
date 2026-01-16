@@ -21,8 +21,7 @@ namespace Kabutar_WPF.Views
 
         private void HamburgerButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            HamburgerMenuPopup.PlacementTarget = sender as System.Windows.UIElement;
-            HamburgerMenuPopup.IsOpen = true;
+            HamburgerMenuPopup.IsOpen = !HamburgerMenuPopup.IsOpen;
         }
 
         private void ProfileSettings_Click(object sender, System.Windows.RoutedEventArgs e)

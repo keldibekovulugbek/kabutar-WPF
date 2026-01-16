@@ -22,7 +22,7 @@ namespace Kabutar_WPF.Services
         {
             try
             {
-                return await _apiClient.PostAsync("/message/send", request);
+                return await _apiClient.PostAsync("messages/text", request);
             }
             catch (Exception ex)
             {
