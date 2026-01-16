@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Kabutar_WPF.Models.Messages;
 
@@ -7,6 +8,7 @@ namespace Kabutar_WPF.Services
     public interface IMessageService
     {
         Task<bool> SendMessageAsync(SendMessageRequest request);
+        Task<List<MessageDTO>> GetConversationAsync(long userId);
     }
 
     public class MessageService : IMessageService
@@ -29,5 +31,29 @@ namespace Kabutar_WPF.Services
                 throw new Exception($"Xabar yuborishda xatolik: {ex.Message}", ex);
             }
         }
+
+        public async Task<List<MessageDTO>> GetConversationAsync(long userId)
+        {
+            try
+            {
+                var result = await _apiClient.GetAsync<List<MessageDTO>>($"messages/conversation/{userId}");
+                return result ?? new List<MessageDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Xabarlarni yuklashda xatolik: {ex.Message}", ex);
+            }
+        }
+    }
+
+    public class MessageDTO
+    {
+        public long Id { get; set; }
+        public long SenderId { get; set; }
+        public long ReceiverId { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public bool IsRead { get; set; }
+        public bool HasAttachment { get; set; }
+        public DateTime Created { get; set; }
     }
 }

@@ -24,6 +24,7 @@ namespace Kabutar_WPF.ViewModels
         private string _messageText = string.Empty;
         private bool _isSearching;
         private bool _isLoading;
+        private long _myUserId;
 
         public MainViewModel(IAuthService authService, ISearchService searchService, IMessageService messageService, IChatService chatService)
         {
@@ -31,6 +32,7 @@ namespace Kabutar_WPF.ViewModels
             _searchService = searchService;
             _messageService = messageService;
             _chatService = chatService;
+            _myUserId = _authService.GetUserId() ?? 0;
 
             Chats = new ObservableCollection<ChatItem>();
             Messages = new ObservableCollection<Message>();
@@ -56,7 +58,7 @@ namespace Kabutar_WPF.ViewModels
             {
                 if (SetProperty(ref _selectedChat, value))
                 {
-                    LoadMessages();
+                    _ = LoadMessagesAsync();
                     (SendMessageCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
@@ -142,35 +144,41 @@ namespace Kabutar_WPF.ViewModels
             }
         }
 
-        private void LoadMessages()
+        private async Task LoadMessagesAsync()
         {
-            Messages.Clear();
-
             if (SelectedChat == null) return;
 
-            // TODO: Load messages from API
-            // For now, add some dummy messages
-            Messages.Add(new Message
+            try
             {
-                Id = 1,
-                ChatId = SelectedChat.Id,
-                Content = "Salom!",
-                SentAt = DateTime.Now.AddMinutes(-10),
-                IsFromMe = false,
-                IsRead = true,
-                IsSent = true
-            });
+                IsLoading = true;
+                Messages.Clear();
 
-            Messages.Add(new Message
+                var messages = await _messageService.GetConversationAsync(SelectedChat.Id);
+
+                foreach (var msg in messages)
+                {
+                    Messages.Add(new Message
+                    {
+                        Id = msg.Id,
+                        ChatId = SelectedChat.Id,
+                        SenderId = msg.SenderId,
+                        Content = msg.Content,
+                        SentAt = msg.Created,
+                        IsFromMe = msg.SenderId == _myUserId,
+                        IsRead = msg.IsRead,
+                        IsSent = true
+                    });
+                }
+            }
+            catch (Exception ex)
             {
-                Id = 2,
-                ChatId = SelectedChat.Id,
-                Content = "Qalaysiz?",
-                SentAt = DateTime.Now.AddMinutes(-5),
-                IsFromMe = true,
-                IsRead = true,
-                IsSent = true
-            });
+                MessageBox.Show($"Xabarlarni yuklashda xatolik: {ex.Message}", "Xatolik",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task PerformSearchAsync()

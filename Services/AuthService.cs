@@ -1,4 +1,7 @@
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Windows;
 using Kabutar_WPF.Models.Auth;
@@ -15,6 +18,7 @@ namespace Kabutar_WPF.Services
         void SaveToken(string token);
         string? GetToken();
         void ClearToken();
+        long? GetUserId();
         bool IsAuthenticated { get; }
     }
 
@@ -117,6 +121,31 @@ namespace Kabutar_WPF.Services
                 Application.Current.Properties.Remove(TokenKey);
             }
             _apiClient.ClearAuthToken();
+        }
+
+        public long? GetUserId()
+        {
+            try
+            {
+                var token = GetToken();
+                if (string.IsNullOrEmpty(token))
+                    return null;
+
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+                var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+                if (userIdClaim != null && long.TryParse(userIdClaim.Value, out long userId))
+                {
+                    return userId;
+                }
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
