@@ -57,6 +57,7 @@ namespace Kabutar_WPF.ViewModels
                 if (SetProperty(ref _selectedChat, value))
                 {
                     LoadMessages();
+                    (SendMessageCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -84,7 +85,13 @@ namespace Kabutar_WPF.ViewModels
         public string MessageText
         {
             get => _messageText;
-            set => SetProperty(ref _messageText, value);
+            set
+            {
+                if (SetProperty(ref _messageText, value))
+                {
+                    (SendMessageCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                }
+            }
         }
 
         public string CurrentUserName

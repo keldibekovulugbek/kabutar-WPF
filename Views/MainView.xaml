@@ -278,15 +278,35 @@
                     <ListBox.Resources>
                         <!-- User Search Result Template -->
                         <DataTemplate x:Key="UserSearchResultTemplate">
-                            <Border Padding="15,12"
-                                    BorderBrush="{DynamicResource BorderBrush}"
+                            <Button Background="Transparent"
                                     BorderThickness="0,0,0,1"
-                                    Cursor="Hand">
-                                <Border.InputBindings>
-                                    <MouseBinding MouseAction="LeftClick"
-                                                  Command="{Binding DataContext.SelectUserCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                  CommandParameter="{Binding}"/>
-                                </Border.InputBindings>
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    Padding="15,12"
+                                    HorizontalContentAlignment="Stretch"
+                                    Cursor="Hand"
+                                    Command="{Binding DataContext.SelectUserCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="50"/>
@@ -319,21 +339,40 @@
                                                    Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Grid>
-                            </Border>
+                            </Button>
                         </DataTemplate>
 
                         <!-- Message Search Result Template -->
                         <DataTemplate x:Key="MessageSearchResultTemplate">
-                            <Border Padding="15,12"
-                                    BorderBrush="{DynamicResource BorderBrush}"
+                            <Button Background="#F5F5F5"
                                     BorderThickness="0,0,0,1"
-                                    Background="#F5F5F5"
-                                    Cursor="Hand">
-                                <Border.InputBindings>
-                                    <MouseBinding MouseAction="LeftClick"
-                                                  Command="{Binding DataContext.SelectMessageResultCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                  CommandParameter="{Binding}"/>
-                                </Border.InputBindings>
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    Padding="15,12"
+                                    HorizontalContentAlignment="Stretch"
+                                    Cursor="Hand"
+                                    Command="{Binding DataContext.SelectMessageResultCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="50"/>
@@ -374,7 +413,7 @@
                                                TextTrimming="CharacterEllipsis"
                                                Margin="0,3,0,0"/>
                                 </Grid>
-                            </Border>
+                            </Button>
                         </DataTemplate>
                     </ListBox.Resources>
 
