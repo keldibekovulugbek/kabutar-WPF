@@ -166,6 +166,8 @@ namespace Kabutar_WPF.Services
                         return "Foydalanuvchi topilmadi. Email yoki username xato kiritilgan.";
                     if (message.Contains("Invalid password") || message.Contains("Incorrect password") || message.Contains("password is incorrect"))
                         return "Parol noto'g'ri. Iltimos, qayta urinib ko'ring.";
+                    if (message.Contains("User already exists"))
+                        return "Bu foydalanuvchi allaqachon ro'yxatdan o'tgan. Boshqa email yoki username tanlang.";
                     if (message.Contains("Email already exists"))
                         return "Bu email allaqachon ro'yxatdan o'tgan.";
                     if (message.Contains("Username already exists"))
