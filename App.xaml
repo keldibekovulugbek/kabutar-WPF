@@ -13,6 +13,7 @@
             
             <!-- Converters -->
             <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
             <conv:InitialsConverter x:Key="InitialsConverter"/>
             <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
             <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>

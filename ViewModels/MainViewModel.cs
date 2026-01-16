@@ -17,6 +17,7 @@ namespace Kabutar_WPF.ViewModels
         private readonly IAuthService _authService;
         private readonly ISearchService _searchService;
         private readonly IMessageService _messageService;
+        private readonly IChatService _chatService;
         private ChatItem? _selectedChat;
         private string _searchText = string.Empty;
         private string _currentUserName = "User";
@@ -24,11 +25,12 @@ namespace Kabutar_WPF.ViewModels
         private bool _isSearching;
         private bool _isLoading;
 
-        public MainViewModel(IAuthService authService, ISearchService searchService, IMessageService messageService)
+        public MainViewModel(IAuthService authService, ISearchService searchService, IMessageService messageService, IChatService chatService)
         {
             _authService = authService;
             _searchService = searchService;
             _messageService = messageService;
+            _chatService = chatService;
 
             Chats = new ObservableCollection<ChatItem>();
             Messages = new ObservableCollection<Message>();
@@ -40,7 +42,7 @@ namespace Kabutar_WPF.ViewModels
             SelectUserCommand = new RelayCommand<UserSearchResult>(user => SelectUserFromSearch(user));
             SelectMessageResultCommand = new RelayCommand<MessageSearchResult>(msgResult => SelectMessageResult(msgResult));
 
-            LoadChats();
+            _ = LoadChatsAsync();
         }
 
         public ObservableCollection<ChatItem> Chats { get; }
@@ -70,6 +72,10 @@ namespace Kabutar_WPF.ViewModels
                     if (string.IsNullOrWhiteSpace(value))
                     {
                         SearchResults.Clear();
+                    }
+                    else
+                    {
+                        _ = PerformSearchAsync();
                     }
                 }
             }
@@ -105,31 +111,28 @@ namespace Kabutar_WPF.ViewModels
         public ICommand SelectUserCommand { get; }
         public ICommand SelectMessageResultCommand { get; }
 
-        private void LoadChats()
+        private async Task LoadChatsAsync()
         {
-            // TODO: Load chats from API
-            // For now, add some dummy data
-            Chats.Add(new ChatItem
+            try
             {
-                Id = 1,
-                Name = "Ulugbek Keldibekov",
-                LastMessage = "Salom, qalaysiz?",
-                LastMessageTime = DateTime.Now.AddMinutes(-5),
-                UnreadCount = 2,
-                IsOnline = true,
-                IsGroup = false
-            });
+                IsLoading = true;
+                var chats = await _chatService.GetRecentChatsAsync();
 
-            Chats.Add(new ChatItem
+                Chats.Clear();
+                foreach (var chat in chats)
+                {
+                    Chats.Add(chat);
+                }
+            }
+            catch (Exception ex)
             {
-                Id = 2,
-                Name = "Developers Group",
-                LastMessage = "Yangi task qo'shildi",
-                LastMessageTime = DateTime.Now.AddHours(-1),
-                UnreadCount = 5,
-                IsOnline = false,
-                IsGroup = true
-            });
+                MessageBox.Show($"Chatlarni yuklashda xatolik: {ex.Message}", "Xatolik",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private void LoadMessages()
