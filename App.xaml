@@ -13,6 +13,15 @@
             
             <!-- Converters -->
             <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <conv:InitialsConverter x:Key="InitialsConverter"/>
+            <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+            <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+            <conv:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter"/>
+            <conv:MessageBackgroundConverter x:Key="MessageBackgroundConverter"/>
+            <conv:MessageForegroundConverter x:Key="MessageForegroundConverter"/>
+            <conv:MessageTimeForegroundConverter x:Key="MessageTimeForegroundConverter"/>
+            <conv:MessageAlignmentConverter x:Key="MessageAlignmentConverter"/>
+            <conv:OnlineStatusConverter x:Key="OnlineStatusConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

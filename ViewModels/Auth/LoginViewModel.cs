@@ -90,9 +90,18 @@ namespace Kabutar_WPF.ViewModels.Auth
                     // Login successful - navigate to main view
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        // TODO: Navigate to MainView when created
-                        MessageBox.Show("Login successful! Main view coming soon.", "Success",
-                            MessageBoxButton.OK, MessageBoxImage.Information);
+                        var mainView = new Views.MainView();
+                        mainView.Show();
+
+                        // Close current login window
+                        foreach (Window window in Application.Current.Windows)
+                        {
+                            if (window.DataContext == this)
+                            {
+                                window.Close();
+                                break;
+                            }
+                        }
                     });
                 }
                 else
