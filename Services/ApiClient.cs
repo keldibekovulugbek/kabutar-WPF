@@ -49,7 +49,14 @@ namespace Kabutar_WPF.Services
 
                 Console.WriteLine($"[API] Response status: {response.StatusCode}");
 
-                response.EnsureSuccessStatusCode();
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[API] Error response: {errorContent}");
+
+                    var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
+                    throw new Exception(errorMessage);
+                }
 
                 var responseJson = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"[API] Response body: {responseJson}");
@@ -59,12 +66,17 @@ namespace Kabutar_WPF.Services
             catch (HttpRequestException ex)
             {
                 Console.WriteLine($"[API] HTTP error: {ex.Message}");
-                throw new Exception($"API request failed: {ex.Message}", ex);
+                throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("Server bilan") || ex.Message.Contains("Email") || ex.Message.Contains("Parol") || ex.Message.Contains("Foydalanuvchi"))
+            {
+                // Already a user-friendly message, re-throw it
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[API] Error: {ex.Message}");
-                throw new Exception($"Unexpected error: {ex.Message}", ex);
+                throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
             }
         }
 
@@ -93,22 +105,29 @@ namespace Kabutar_WPF.Services
                 // Read error message from response
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"[API] Error response: {errorContent}");
-                throw new Exception($"Server returned error: {response.StatusCode}. {errorContent}");
+
+                var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
+                throw new Exception(errorMessage);
             }
             catch (HttpRequestException ex)
             {
                 Console.WriteLine($"[API] Network error: {ex.Message}");
-                throw new Exception($"Network error: {ex.Message}", ex);
+                throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
             }
             catch (TaskCanceledException ex)
             {
                 Console.WriteLine($"[API] Timeout error: {ex.Message}");
-                throw new Exception("Request timeout. Please check your internet connection.");
+                throw new Exception("So'rov vaqti tugadi. Internet tezligingizni tekshiring.", ex);
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("Server bilan") || ex.Message.Contains("Email") || ex.Message.Contains("Parol") || ex.Message.Contains("Foydalanuvchi"))
+            {
+                // Already a user-friendly message, re-throw it
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[API] Unexpected error: {ex.Message}");
-                throw;
+                throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
             }
         }
 
@@ -127,6 +146,85 @@ namespace Kabutar_WPF.Services
             catch
             {
                 return default;
+            }
+        }
+
+        private string ParseErrorMessage(string errorContent, int statusCode)
+        {
+            try
+            {
+                // Try to parse as JSON error response
+                var errorObj = JsonConvert.DeserializeObject<dynamic>(errorContent);
+
+                // Backend custom error format: {"StatusCode": 404, "Message": "User not found."}
+                if (errorObj?.Message != null)
+                {
+                    string message = errorObj.Message.ToString();
+
+                    // Translate common error messages to Uzbek
+                    if (message.Contains("User not found") || message.Contains("not found"))
+                        return "Foydalanuvchi topilmadi. Email yoki username xato kiritilgan.";
+                    if (message.Contains("Invalid password") || message.Contains("password is incorrect"))
+                        return "Parol noto'g'ri. Iltimos, qayta urinib ko'ring.";
+                    if (message.Contains("Email already exists"))
+                        return "Bu email allaqachon ro'yxatdan o'tgan.";
+                    if (message.Contains("Username already exists"))
+                        return "Bu username allaqachon band.";
+
+                    return message;
+                }
+
+                // Validation error format: {"errors": {"Password": ["Password must be..."]} }
+                if (errorObj?.errors != null)
+                {
+                    var errors = new System.Collections.Generic.List<string>();
+
+                    foreach (var prop in errorObj.errors)
+                    {
+                        string fieldName = prop.Name;
+                        var messages = prop.Value;
+
+                        foreach (var msg in messages)
+                        {
+                            string message = msg.ToString();
+
+                            // Translate validation messages
+                            if (message.Contains("Password must be"))
+                                errors.Add("Parol 8-50 ta belgidan iborat bo'lishi va kamida 1 ta kichik, 1 ta katta harf hamda 1 ta raqam bo'lishi kerak.");
+                            else if (message.Contains("Email"))
+                                errors.Add("Email noto'g'ri formatda.");
+                            else if (fieldName == "Password")
+                                errors.Add($"Parol: {message}");
+                            else if (fieldName == "Email")
+                                errors.Add($"Email: {message}");
+                            else
+                                errors.Add(message);
+                        }
+                    }
+
+                    return errors.Count > 0 ? string.Join("\n", errors) : "Ma'lumotlar noto'g'ri to'ldirilgan.";
+                }
+
+                // If no specific error format found, return generic message based on status code
+                return statusCode switch
+                {
+                    400 => "Ma'lumotlar noto'g'ri to'ldirilgan. Iltimos, qayta tekshiring.",
+                    401 => "Login yoki parol noto'g'ri.",
+                    404 => "Foydalanuvchi topilmadi. Email yoki username xato.",
+                    500 => "Serverda xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring.",
+                    _ => "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
+                };
+            }
+            catch
+            {
+                // If parsing fails, return generic error based on status code
+                return statusCode switch
+                {
+                    400 => "Ma'lumotlar noto'g'ri to'ldirilgan.",
+                    401 => "Login yoki parol noto'g'ri.",
+                    404 => "Foydalanuvchi topilmadi.",
+                    _ => "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
+                };
             }
         }
     }
