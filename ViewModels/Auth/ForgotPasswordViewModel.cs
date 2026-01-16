@@ -133,8 +133,8 @@ namespace Kabutar_WPF.ViewModels.Auth
                 var request = new ResetPasswordRequest
                 {
                     Email = Email.Trim(),
-                    Code = Code.Trim(),
-                    NewPassword = NewPassword
+                    Code = int.TryParse(Code.Trim(), out int code) ? code : 0,
+                    Password = NewPassword
                 };
 
                 var success = await _authService.ResetPasswordAsync(request);
