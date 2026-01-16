@@ -39,11 +39,13 @@ namespace Kabutar_WPF.Services
                 var json = JsonConvert.SerializeObject(data);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var fullUrl = $"{BaseUrl}{endpoint}";
+                // Remove leading slash to work correctly with BaseAddress
+                var relativeEndpoint = endpoint.TrimStart('/');
+                var fullUrl = $"{BaseUrl}/{relativeEndpoint}";
                 Console.WriteLine($"[API] Sending POST to: {fullUrl}");
                 Console.WriteLine($"[API] Request body: {json}");
 
-                var response = await _httpClient.PostAsync(endpoint, content);
+                var response = await _httpClient.PostAsync(relativeEndpoint, content);
 
                 Console.WriteLine($"[API] Response status: {response.StatusCode}");
 
@@ -73,11 +75,13 @@ namespace Kabutar_WPF.Services
                 var json = JsonConvert.SerializeObject(data);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var fullUrl = $"{BaseUrl}{endpoint}";
+                // Remove leading slash to work correctly with BaseAddress
+                var relativeEndpoint = endpoint.TrimStart('/');
+                var fullUrl = $"{BaseUrl}/{relativeEndpoint}";
                 Console.WriteLine($"[API] Sending POST to: {fullUrl}");
                 Console.WriteLine($"[API] Request body: {json}");
 
-                var response = await _httpClient.PostAsync(endpoint, content);
+                var response = await _httpClient.PostAsync(relativeEndpoint, content);
 
                 Console.WriteLine($"[API] Response status: {response.StatusCode}");
 
@@ -112,7 +116,9 @@ namespace Kabutar_WPF.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync(endpoint);
+                // Remove leading slash to work correctly with BaseAddress
+                var relativeEndpoint = endpoint.TrimStart('/');
+                var response = await _httpClient.GetAsync(relativeEndpoint);
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
