@@ -39,18 +39,29 @@ namespace Kabutar_WPF.Services
                 var json = JsonConvert.SerializeObject(data);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+                var fullUrl = $"{BaseUrl}{endpoint}";
+                Console.WriteLine($"[API] Sending POST to: {fullUrl}");
+                Console.WriteLine($"[API] Request body: {json}");
+
                 var response = await _httpClient.PostAsync(endpoint, content);
+
+                Console.WriteLine($"[API] Response status: {response.StatusCode}");
+
                 response.EnsureSuccessStatusCode();
 
                 var responseJson = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[API] Response body: {responseJson}");
+
                 return JsonConvert.DeserializeObject<TResponse>(responseJson);
             }
             catch (HttpRequestException ex)
             {
+                Console.WriteLine($"[API] HTTP error: {ex.Message}");
                 throw new Exception($"API request failed: {ex.Message}", ex);
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[API] Error: {ex.Message}");
                 throw new Exception($"Unexpected error: {ex.Message}", ex);
             }
         }
@@ -62,7 +73,13 @@ namespace Kabutar_WPF.Services
                 var json = JsonConvert.SerializeObject(data);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
+                var fullUrl = $"{BaseUrl}{endpoint}";
+                Console.WriteLine($"[API] Sending POST to: {fullUrl}");
+                Console.WriteLine($"[API] Request body: {json}");
+
                 var response = await _httpClient.PostAsync(endpoint, content);
+
+                Console.WriteLine($"[API] Response status: {response.StatusCode}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -71,15 +88,23 @@ namespace Kabutar_WPF.Services
 
                 // Read error message from response
                 var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[API] Error response: {errorContent}");
                 throw new Exception($"Server returned error: {response.StatusCode}. {errorContent}");
             }
             catch (HttpRequestException ex)
             {
+                Console.WriteLine($"[API] Network error: {ex.Message}");
                 throw new Exception($"Network error: {ex.Message}", ex);
             }
-            catch (TaskCanceledException)
+            catch (TaskCanceledException ex)
             {
+                Console.WriteLine($"[API] Timeout error: {ex.Message}");
                 throw new Exception("Request timeout. Please check your internet connection.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[API] Unexpected error: {ex.Message}");
+                throw;
             }
         }
 
