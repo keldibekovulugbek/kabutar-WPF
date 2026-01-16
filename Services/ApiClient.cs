@@ -131,24 +131,6 @@ namespace Kabutar_WPF.Services
             }
         }
 
-        public async Task<TResponse?> GetAsync<TResponse>(string endpoint)
-        {
-            try
-            {
-                // Remove leading slash to work correctly with BaseAddress
-                var relativeEndpoint = endpoint.TrimStart('/');
-                var response = await _httpClient.GetAsync(relativeEndpoint);
-                response.EnsureSuccessStatusCode();
-
-                var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<TResponse>(json);
-            }
-            catch
-            {
-                return default;
-            }
-        }
-
         private string ParseErrorMessage(string errorContent, int statusCode)
         {
             try
@@ -231,6 +213,48 @@ namespace Kabutar_WPF.Services
                     404 => "Foydalanuvchi topilmadi.",
                     _ => "Xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
                 };
+            }
+        }
+
+        public async Task<TResponse?> GetAsync<TResponse>(string endpoint)
+        {
+            try
+            {
+                var relativeEndpoint = endpoint.TrimStart('/');
+                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
+                Console.WriteLine($"[API] Sending GET to: {fullUrl}");
+
+                var response = await _httpClient.GetAsync(relativeEndpoint);
+
+                Console.WriteLine($"[API] Response status: {response.StatusCode}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[API] Error response: {errorContent}");
+
+                    var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
+                    throw new Exception(errorMessage);
+                }
+
+                var responseJson = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[API] Response body: {responseJson}");
+
+                return JsonConvert.DeserializeObject<TResponse>(responseJson);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"[API] HTTP error: {ex.Message}");
+                throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("Server bilan") || ex.Message.Contains("Email") || ex.Message.Contains("Parol") || ex.Message.Contains("Foydalanuvchi"))
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[API] Error: {ex.Message}");
+                throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
             }
         }
     }

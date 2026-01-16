@@ -12,7 +12,10 @@ namespace Kabutar_WPF.Views
 
             var apiClient = new ApiClient();
             var authService = new AuthService(apiClient);
-            DataContext = new MainViewModel(authService);
+            var searchService = new SearchService(apiClient);
+            var messageService = new MessageService(apiClient);
+
+            DataContext = new MainViewModel(authService, searchService, messageService);
         }
     }
 }
