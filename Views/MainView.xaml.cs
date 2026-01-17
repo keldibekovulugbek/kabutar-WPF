@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Media.Animation;
 using Kabutar_WPF.Services;
 using Kabutar_WPF.ViewModels;
 
@@ -6,6 +7,8 @@ namespace Kabutar_WPF.Views
 {
     public partial class MainView : Window
     {
+        private bool _isMenuOpen = false;
+
         public MainView()
         {
             InitializeComponent();
@@ -21,33 +24,97 @@ namespace Kabutar_WPF.Views
 
         private void HamburgerButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            HamburgerMenuPopup.IsOpen = !HamburgerMenuPopup.IsOpen;
+            ToggleMenu();
+        }
+
+        private void ToggleMenu()
+        {
+            if (_isMenuOpen)
+            {
+                CloseMenu();
+            }
+            else
+            {
+                OpenMenu();
+            }
+        }
+
+        private void OpenMenu()
+        {
+            _isMenuOpen = true;
+            MenuOverlay.Visibility = Visibility.Visible;
+
+            // Animate menu sliding in
+            var slideIn = new DoubleAnimation
+            {
+                From = -280,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(250),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            MenuTransform.BeginAnimation(System.Windows.Media.TranslateTransform.XProperty, slideIn);
+        }
+
+        private void CloseMenu()
+        {
+            _isMenuOpen = false;
+
+            // Animate menu sliding out
+            var slideOut = new DoubleAnimation
+            {
+                From = 0,
+                To = -280,
+                Duration = TimeSpan.FromMilliseconds(200),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            slideOut.Completed += (s, e) =>
+            {
+                MenuOverlay.Visibility = Visibility.Collapsed;
+            };
+
+            MenuTransform.BeginAnimation(System.Windows.Media.TranslateTransform.XProperty, slideOut);
+        }
+
+        private void MenuOverlay_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            CloseMenu();
         }
 
         private void ProfileSettings_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            HamburgerMenuPopup.IsOpen = false;
-            // TODO: Open profile settings
-            MessageBox.Show("Profilni sozlash sahifasi hali ishlab chiqilmagan", "Xabar", MessageBoxButton.OK, MessageBoxImage.Information);
+            CloseMenu();
+
+            var apiClient = ApiClient.Instance;
+            var authService = new AuthService(apiClient);
+            var userService = new UserService(apiClient);
+
+            var profileWindow = new ProfileSettingsView(userService, authService)
+            {
+                Owner = this
+            };
+
+            profileWindow.ShowDialog();
         }
 
         private void ChangeTheme_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            HamburgerMenuPopup.IsOpen = false;
+            CloseMenu();
             // TODO: Implement theme switching
             MessageBox.Show("Mavzuni almashtirish hali ishlab chiqilmagan", "Xabar", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void Settings_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            HamburgerMenuPopup.IsOpen = false;
+            CloseMenu();
             // TODO: Open settings
             MessageBox.Show("Sozlamalar sahifasi hali ishlab chiqilmagan", "Xabar", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void Logout_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            HamburgerMenuPopup.IsOpen = false;
+            CloseMenu();
         }
     }
 }

@@ -277,5 +277,87 @@ namespace Kabutar_WPF.Services
                 throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
             }
         }
+
+        public async Task<bool> PutAsync<TRequest>(string endpoint, TRequest data)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(data);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var relativeEndpoint = endpoint.TrimStart('/');
+                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
+                Console.WriteLine($"[API] Sending PUT to: {fullUrl}");
+                Console.WriteLine($"[API] Request body: {json}");
+
+                var response = await _httpClient.PutAsync(relativeEndpoint, content);
+
+                Console.WriteLine($"[API] Response status: {response.StatusCode}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[API] Error response: {errorContent}");
+
+                var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
+                throw new Exception(errorMessage);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"[API] Network error: {ex.Message}");
+                throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("Server bilan"))
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[API] Unexpected error: {ex.Message}");
+                throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
+            }
+        }
+
+        public async Task<bool> PostFormDataAsync(string endpoint, MultipartFormDataContent content)
+        {
+            try
+            {
+                var relativeEndpoint = endpoint.TrimStart('/');
+                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
+                Console.WriteLine($"[API] Sending POST (multipart) to: {fullUrl}");
+
+                var response = await _httpClient.PostAsync(relativeEndpoint, content);
+
+                Console.WriteLine($"[API] Response status: {response.StatusCode}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[API] Error response: {errorContent}");
+
+                var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
+                throw new Exception(errorMessage);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"[API] Network error: {ex.Message}");
+                throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("Server bilan"))
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[API] Unexpected error: {ex.Message}");
+                throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
+            }
+        }
     }
 }

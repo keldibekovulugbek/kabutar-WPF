@@ -38,7 +38,7 @@ namespace Kabutar_WPF.Services
                     Name = $"{dto.FirstName} {dto.LastName}".Trim(),
                     ProfilePicture = dto.ProfilePicture,
                     LastMessage = dto.LastMessage,
-                    LastMessageTime = dto.Timestamp,
+                    LastMessageTime = dto.Timestamp.ToLocalTime(),
                     UnreadCount = dto.UnreadCount,
                     IsOnline = dto.IsOnline,
                     IsGroup = false

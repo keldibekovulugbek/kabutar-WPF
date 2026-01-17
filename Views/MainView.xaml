@@ -8,7 +8,7 @@
         Title="Kabutar" Height="700" Width="1200"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource BackgroundBrush}">
-    <Grid>
+    <Grid x:Name="RootGrid">
         <Grid.ColumnDefinitions>
             <!-- Chat List -->
             <ColumnDefinition Width="350"/>
@@ -86,154 +86,6 @@
                     </Grid>
                 </Border>
 
-                <!-- Hamburger Menu Popup -->
-                <Popup x:Name="HamburgerMenuPopup"
-                       Grid.Row="0"
-                       PlacementTarget="{Binding ElementName=HamburgerButton}"
-                       Placement="Bottom"
-                       StaysOpen="False"
-                       AllowsTransparency="True">
-                    <Border Background="{DynamicResource SurfaceBrush}"
-                            BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="5"
-                            Padding="10"
-                            Margin="20,5,0,0"
-                            Width="250">
-                        <Border.Effect>
-                            <DropShadowEffect Color="Black" Opacity="0.2" BlurRadius="10" ShadowDepth="2"/>
-                        </Border.Effect>
-                        <StackPanel>
-                            <!-- Profilni sozlash -->
-                            <Button Content="Profilni sozlash"
-                                    HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Left"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Padding="15,12"
-                                    Cursor="Hand"
-                                    Click="ProfileSettings_Click">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            CornerRadius="5"
-                                                            Padding="{TemplateBinding Padding}">
-                                                        <ContentPresenter/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-
-                            <!-- Mavzuni almashtirish -->
-                            <Button Content="Mavzuni almashtirish"
-                                    HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Left"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Padding="15,12"
-                                    Cursor="Hand"
-                                    Click="ChangeTheme_Click">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            CornerRadius="5"
-                                                            Padding="{TemplateBinding Padding}">
-                                                        <ContentPresenter/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-
-                            <!-- Sozlamalar -->
-                            <Button Content="Sozlamalar"
-                                    HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Left"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Padding="15,12"
-                                    Cursor="Hand"
-                                    Click="Settings_Click">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            CornerRadius="5"
-                                                            Padding="{TemplateBinding Padding}">
-                                                        <ContentPresenter/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-
-                            <Separator Margin="5,5"/>
-
-                            <!-- Chiqish -->
-                            <Button Content="Chiqish"
-                                    HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Left"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Padding="15,12"
-                                    Foreground="{DynamicResource DangerBrush}"
-                                    Cursor="Hand"
-                                    Command="{Binding LogoutCommand}"
-                                    Click="Logout_Click">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            CornerRadius="5"
-                                                            Padding="{TemplateBinding Padding}">
-                                                        <ContentPresenter/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#FFEBEE"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                        </StackPanel>
-                    </Border>
-                </Popup>
 
                 <!-- Search Box -->
                 <Border Grid.Row="1"
@@ -584,16 +436,17 @@
                                        Foreground="{DynamicResource SecondaryTextBrush}"
                                        Margin="0,2,0,0"/>
                         </StackPanel>
+                        <TextBlock Grid.Column="0"
+                                   Text="Chatni tanlang"
+                                   FontSize="16"
+                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Visibility="{Binding SelectedChat, Converter={StaticResource NullToVisibilityConverter}}" />
+
                     </StackPanel>
 
-                    <TextBlock Grid.Column="0"
-                               Text="Chatni tanlang"
-                               FontSize="16"
-                               Foreground="{DynamicResource SecondaryTextBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Visibility="{Binding SelectedChat, Converter={StaticResource NullToVisibilityConverter}}"/>
-                </Grid>
+                    </Grid>
             </Border>
 
             <!-- Messages Area -->
@@ -720,6 +573,179 @@
                             </Style>
                         </Button.Style>
                     </Button>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Sliding Menu Overlay -->
+        <Grid x:Name="MenuOverlay"
+              Grid.ColumnSpan="2"
+              Background="#80000000"
+              Visibility="Collapsed"
+              MouseDown="MenuOverlay_MouseDown">
+
+            <!-- Side Menu Panel -->
+            <Border x:Name="SideMenuPanel"
+                    Width="280"
+                    HorizontalAlignment="Left"
+                    Background="{DynamicResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="0,0,1,0">
+                <Border.RenderTransform>
+                    <TranslateTransform x:Name="MenuTransform" X="-280"/>
+                </Border.RenderTransform>
+
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="15" ShadowDepth="0"/>
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Menu Header -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource PrimaryBrush}"
+                            Padding="20,30,20,20">
+                        <StackPanel>
+                            <TextBlock Text="Menyu"
+                                       FontSize="22"
+                                       FontWeight="Bold"
+                                       Foreground="White"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Menu Items -->
+                    <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                        <!-- Profilni sozlash -->
+                        <Button Content="Profilni sozlash"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="20,15"
+                                Cursor="Hand"
+                                FontSize="15"
+                                Click="ProfileSettings_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- Mavzuni almashtirish -->
+                        <Button Content="Mavzuni almashtirish"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="20,15"
+                                Cursor="Hand"
+                                FontSize="15"
+                                Click="ChangeTheme_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- Sozlamalar -->
+                        <Button Content="Sozlamalar"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="20,15"
+                                Cursor="Hand"
+                                FontSize="15"
+                                Click="Settings_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <Separator Margin="10,10" Background="{DynamicResource BorderBrush}"/>
+
+                        <!-- Chiqish -->
+                        <Button Content="Chiqish"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="20,15"
+                                Foreground="#F44336"
+                                Cursor="Hand"
+                                FontSize="15"
+                                Click="Logout_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#FFEBEE"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </Border>
         </Grid>
