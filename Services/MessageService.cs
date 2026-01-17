@@ -9,6 +9,7 @@ namespace Kabutar_WPF.Services
     {
         Task<bool> SendMessageAsync(SendMessageRequest request);
         Task<List<MessageDTO>> GetConversationAsync(long userId);
+        Task<bool> MarkAsReadAsync(long messageId);
     }
 
     public class MessageService : IMessageService
@@ -42,6 +43,18 @@ namespace Kabutar_WPF.Services
             catch (Exception ex)
             {
                 throw new Exception($"Xabarlarni yuklashda xatolik: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<bool> MarkAsReadAsync(long messageId)
+        {
+            try
+            {
+                return await _apiClient.PutAsync($"messages/read/{messageId}", new { });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Xabarni o'qilgan deb belgilashda xatolik: {ex.Message}", ex);
             }
         }
     }

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Kabutar_WPF.Views"
+        xmlns:helpers="clr-namespace:Kabutar_WPF.Helpers"
         mc:Ignorable="d"
         Title="Kabutar" Height="700" Width="1200"
         WindowStartupLocation="CenterScreen"
@@ -327,28 +328,29 @@
                                 </Grid.RowDefinitions>
 
                                 <!-- Avatar -->
-                                <Grid Grid.Column="0" Grid.RowSpan="2"
-                                      Width="50" Height="50"
-                                      Margin="0,0,12,0">
-                                    <Border Width="50" Height="50"
-                                            CornerRadius="25"
-                                            Background="{DynamicResource PrimaryBrush}">
-                                        <TextBlock Text="{Binding Name, Converter={StaticResource InitialsConverter}}"
-                                                   Foreground="White"
-                                                   FontSize="18"
-                                                   FontWeight="Bold"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"/>
-                                    </Border>
+                                <Border Grid.Column="0" Grid.RowSpan="2"
+                                        Width="50" Height="50"
+                                        CornerRadius="25"
+                                        Background="{DynamicResource PrimaryBrush}"
+                                        Margin="0,0,12,0">
+                                    <TextBlock Text="{Binding Name, Converter={StaticResource InitialsConverter}}"
+                                               Foreground="White"
+                                               FontSize="18"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
 
-                                    <!-- Online indicator -->
-                                    <Ellipse Width="12" Height="12"
-                                             Fill="#4CAF50"
-                                             HorizontalAlignment="Right"
-                                             VerticalAlignment="Bottom"
-                                             Margin="0,0,2,2"
-                                             Visibility="{Binding IsOnline, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                </Grid>
+                                <!-- Online indicator (separate from avatar) -->
+                                <Ellipse Grid.Column="0" Grid.RowSpan="2"
+                                         Width="14" Height="14"
+                                         Fill="#4CAF50"
+                                         Stroke="{DynamicResource BackgroundBrush}"
+                                         StrokeThickness="2"
+                                         HorizontalAlignment="Left"
+                                         VerticalAlignment="Top"
+                                         Margin="36,36,0,0"
+                                         Visibility="{Binding IsOnline, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                                 <!-- Name -->
                                 <TextBlock Grid.Column="1" Grid.Row="0"
@@ -408,12 +410,9 @@
                     BorderThickness="0,0,0,1"
                     Padding="20,15">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <!-- User Info (visible when chat is selected) -->
+                    <StackPanel Orientation="Horizontal"
+                                Visibility="{Binding SelectedChat, Converter={StaticResource NotNullToVisibilityConverter}}">
                         <Border Width="45" Height="45"
                                 CornerRadius="22.5"
                                 Background="{DynamicResource PrimaryBrush}"
@@ -436,17 +435,16 @@
                                        Foreground="{DynamicResource SecondaryTextBrush}"
                                        Margin="0,2,0,0"/>
                         </StackPanel>
-                        <TextBlock Grid.Column="0"
-                                   Text="Chatni tanlang"
-                                   FontSize="16"
-                                   Foreground="{DynamicResource SecondaryTextBrush}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Visibility="{Binding SelectedChat, Converter={StaticResource NullToVisibilityConverter}}" />
-
                     </StackPanel>
 
-                    </Grid>
+                    <!-- Placeholder text (visible when no chat selected) -->
+                    <TextBlock Text="Chatni tanlang"
+                               FontSize="16"
+                               Foreground="{DynamicResource SecondaryTextBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding SelectedChat, Converter={StaticResource NullToVisibilityConverter}}" />
+                </Grid>
             </Border>
 
             <!-- Messages Area -->
@@ -455,29 +453,51 @@
                           Padding="20"
                           Visibility="{Binding SelectedChat, Converter={StaticResource NotNullToVisibilityConverter}}">
                 <ItemsControl ItemsSource="{Binding Messages}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
+                    <ItemsControl.Resources>
+                        <!-- Date Separator Template -->
+                        <DataTemplate x:Key="DateSeparatorTemplate">
+                            <Grid Margin="0,15,0,10">
+                                <Border Background="{DynamicResource SurfaceBrush}"
+                                        CornerRadius="12"
+                                        Padding="12,6"
+                                        HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding DateText}"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SecondaryTextBrush}"/>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+
+                        <!-- Message Template -->
+                        <DataTemplate x:Key="MessageTemplate">
                             <Grid Margin="0,5">
-                                <Border Background="{Binding IsFromMe, Converter={StaticResource MessageBackgroundConverter}}"
+                                <Border Background="{Binding Message.IsFromMe, Converter={StaticResource MessageBackgroundConverter}}"
                                         CornerRadius="10"
                                         Padding="12,8"
                                         MaxWidth="400"
-                                        HorizontalAlignment="{Binding IsFromMe, Converter={StaticResource MessageAlignmentConverter}}">
+                                        HorizontalAlignment="{Binding Message.IsFromMe, Converter={StaticResource MessageAlignmentConverter}}">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding Content}"
+                                        <TextBlock Text="{Binding Message.Content}"
                                                    TextWrapping="Wrap"
-                                                   Foreground="{Binding IsFromMe, Converter={StaticResource MessageForegroundConverter}}"
+                                                   Foreground="{Binding Message.IsFromMe, Converter={StaticResource MessageForegroundConverter}}"
                                                    FontSize="14"/>
-                                        <TextBlock Text="{Binding SentAt, StringFormat='{}{0:HH:mm}'}"
+                                        <TextBlock Text="{Binding Message.SentAt, StringFormat='{}{0:HH:mm}'}"
                                                    FontSize="11"
-                                                   Foreground="{Binding IsFromMe, Converter={StaticResource MessageTimeForegroundConverter}}"
+                                                   Foreground="{Binding Message.IsFromMe, Converter={StaticResource MessageTimeForegroundConverter}}"
                                                    HorizontalAlignment="Right"
                                                    Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </Grid>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
+                    </ItemsControl.Resources>
+
+                    <ItemsControl.ItemTemplateSelector>
+                        <helpers:MessageItemTemplateSelector
+                            DateSeparatorTemplate="{StaticResource DateSeparatorTemplate}"
+                            MessageTemplate="{StaticResource MessageTemplate}"/>
+                    </ItemsControl.ItemTemplateSelector>
                 </ItemsControl>
             </ScrollViewer>
 
@@ -605,16 +625,46 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Menu Header -->
+                    <!-- Menu Header with User Info -->
                     <Border Grid.Row="0"
                             Background="{DynamicResource PrimaryBrush}"
-                            Padding="20,30,20,20">
-                        <StackPanel>
-                            <TextBlock Text="Menyu"
-                                       FontSize="22"
-                                       FontWeight="Bold"
-                                       Foreground="White"/>
-                        </StackPanel>
+                            Padding="20,25,20,20">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Profile Picture -->
+                            <Border Grid.Column="0"
+                                    Width="60"
+                                    Height="60"
+                                    CornerRadius="30"
+                                    Background="White"
+                                    Margin="0,0,15,0">
+                                <TextBlock x:Name="MenuUserInitials"
+                                           Text="AB"
+                                           Foreground="{DynamicResource PrimaryBrush}"
+                                           FontSize="22"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+
+                            <!-- User Name -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock x:Name="MenuUserName"
+                                           Text="Loading..."
+                                           FontSize="18"
+                                           FontWeight="Bold"
+                                           Foreground="White"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="Profilni ko'rish"
+                                           FontSize="13"
+                                           Foreground="#E0FFFFFF"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Grid>
                     </Border>
 
                     <!-- Menu Items -->

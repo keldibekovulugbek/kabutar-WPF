@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Media.Animation;
 using Kabutar_WPF.Services;
@@ -20,6 +21,34 @@ namespace Kabutar_WPF.Views
             var chatService = new ChatService(apiClient);
 
             DataContext = new MainViewModel(authService, searchService, messageService, chatService);
+
+            // Load current user info for menu
+            _ = LoadCurrentUserInfoAsync();
+        }
+
+        private async System.Threading.Tasks.Task LoadCurrentUserInfoAsync()
+        {
+            try
+            {
+                var apiClient = ApiClient.Instance;
+                var userService = new UserService(apiClient);
+                var userProfile = await userService.GetCurrentUserAsync();
+
+                if (userProfile != null)
+                {
+                    MenuUserName.Text = $"{userProfile.FirstName} {userProfile.LastName}";
+
+                    // Set initials (first letter of firstname + first letter of lastname)
+                    var firstInitial = string.IsNullOrEmpty(userProfile.FirstName) ? "" : userProfile.FirstName[0].ToString();
+                    var lastInitial = string.IsNullOrEmpty(userProfile.LastName) ? "" : userProfile.LastName[0].ToString();
+                    MenuUserInitials.Text = (firstInitial + lastInitial).ToUpper();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Silently fail, keep default values
+                Console.WriteLine($"Failed to load user info: {ex.Message}");
+            }
         }
 
         private void HamburgerButton_Click(object sender, System.Windows.RoutedEventArgs e)

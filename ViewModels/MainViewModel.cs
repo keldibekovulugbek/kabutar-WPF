@@ -38,7 +38,7 @@ namespace Kabutar_WPF.ViewModels
             _myUserId = _authService.GetUserId() ?? 0;
 
             Chats = new ObservableCollection<ChatItem>();
-            Messages = new ObservableCollection<Message>();
+            Messages = new ObservableCollection<MessageItem>();
             SearchResults = new ObservableCollection<object>();
 
             LogoutCommand = new RelayCommand(_ => Logout());
@@ -51,7 +51,7 @@ namespace Kabutar_WPF.ViewModels
         }
 
         public ObservableCollection<ChatItem> Chats { get; }
-        public ObservableCollection<Message> Messages { get; }
+        public ObservableCollection<MessageItem> Messages { get; }
         public ObservableCollection<object> SearchResults { get; }
 
         public ChatItem? SelectedChat
@@ -170,19 +170,44 @@ namespace Kabutar_WPF.ViewModels
                 // Check if cancelled
                 if (token.IsCancellationRequested) return;
 
+                DateTime? lastDate = null;
+
                 foreach (var msg in messages)
                 {
-                    Messages.Add(new Message
+                    var messageDate = msg.Created.ToLocalTime().Date;
+
+                    // Add date separator if date changed
+                    if (lastDate == null || lastDate.Value.Date != messageDate)
                     {
-                        Id = msg.Id,
-                        ChatId = SelectedChat.Id,
-                        SenderId = msg.SenderId,
-                        Content = msg.Content,
-                        SentAt = msg.Created.ToLocalTime(), // Convert UTC to local time
-                        IsFromMe = msg.SenderId == _myUserId,
-                        IsRead = msg.IsRead,
-                        IsSent = true
+                        Messages.Add(new MessageItem
+                        {
+                            IsDateSeparator = true,
+                            DateText = FormatDateSeparator(messageDate)
+                        });
+                        lastDate = messageDate;
+                    }
+
+                    Messages.Add(new MessageItem
+                    {
+                        IsDateSeparator = false,
+                        Message = new Message
+                        {
+                            Id = msg.Id,
+                            ChatId = SelectedChat.Id,
+                            SenderId = msg.SenderId,
+                            Content = msg.Content,
+                            SentAt = msg.Created.ToLocalTime(), // Convert UTC to local time
+                            IsFromMe = msg.SenderId == _myUserId,
+                            IsRead = msg.IsRead,
+                            IsSent = true
+                        }
                     });
+
+                    // Mark unread messages as read (messages sent to me)
+                    if (!msg.IsRead && msg.ReceiverId == _myUserId)
+                    {
+                        _ = _messageService.MarkAsReadAsync(msg.Id);
+                    }
                 }
             }
             catch (OperationCanceledException)
@@ -341,23 +366,54 @@ namespace Kabutar_WPF.ViewModels
 
                 if (success)
                 {
+                    var now = DateTime.Now;
+                    var messageDate = now.Date;
+
+                    // Check if we need to add a date separator
+                    var lastItem = Messages.LastOrDefault();
+                    if (lastItem != null && !lastItem.IsDateSeparator && lastItem.Message != null)
+                    {
+                        var lastMessageDate = lastItem.Message.SentAt.Date;
+                        if (lastMessageDate != messageDate)
+                        {
+                            Messages.Add(new MessageItem
+                            {
+                                IsDateSeparator = true,
+                                DateText = FormatDateSeparator(messageDate)
+                            });
+                        }
+                    }
+                    else if (lastItem == null)
+                    {
+                        // First message, add date separator
+                        Messages.Add(new MessageItem
+                        {
+                            IsDateSeparator = true,
+                            DateText = FormatDateSeparator(messageDate)
+                        });
+                    }
+
                     // Add message to UI
                     var newMessage = new Message
                     {
                         Id = DateTime.Now.Ticks, // Temporary ID
                         ChatId = SelectedChat.Id,
                         Content = MessageText.Trim(),
-                        SentAt = DateTime.Now,
+                        SentAt = now,
                         IsFromMe = true,
                         IsRead = false,
                         IsSent = true
                     };
 
-                    Messages.Add(newMessage);
+                    Messages.Add(new MessageItem
+                    {
+                        IsDateSeparator = false,
+                        Message = newMessage
+                    });
 
                     // Update last message in chat list
                     SelectedChat.LastMessage = MessageText.Trim();
-                    SelectedChat.LastMessageTime = DateTime.Now;
+                    SelectedChat.LastMessageTime = now;
 
                     // Clear input
                     MessageText = string.Empty;
@@ -395,6 +451,19 @@ namespace Kabutar_WPF.ViewModels
                     }
                 }
             });
+        }
+
+        private string FormatDateSeparator(DateTime date)
+        {
+            var today = DateTime.Today;
+            var yesterday = today.AddDays(-1);
+
+            if (date.Date == today)
+                return "Bugun";
+            else if (date.Date == yesterday)
+                return "Kecha";
+            else
+                return date.ToString("d-MMMM");
         }
     }
 }

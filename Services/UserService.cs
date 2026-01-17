@@ -26,9 +26,14 @@ namespace Kabutar_WPF.Services
         {
             try
             {
-                // Assuming there's an endpoint to get current user info
-                // For now, return null as we might need to add this endpoint to backend
-                return null;
+                // Get current user ID from auth service
+                var authService = new AuthService(_apiClient);
+                var userId = authService.GetUserId();
+                if (userId == null)
+                    return null;
+
+                // Use the GetById endpoint to get current user info
+                return await _apiClient.GetAsync<UserProfileDTO>($"users/{userId}");
             }
             catch (Exception ex)
             {

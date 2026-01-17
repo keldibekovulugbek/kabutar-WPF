@@ -25,7 +25,7 @@ namespace Kabutar_WPF.Views
         {
             try
             {
-                // For now, we'll get user ID from auth service
+                // Get user ID from auth service
                 var userId = _authService.GetUserId();
                 if (userId == null)
                 {
@@ -34,9 +34,20 @@ namespace Kabutar_WPF.Views
                     return;
                 }
 
-                // TODO: Load current user data from API
-                // var userProfile = await _userService.GetCurrentUserAsync();
-                // For now, leave fields empty for user to fill
+                // Load current user data from API
+                var userProfile = await _userService.GetCurrentUserAsync();
+                if (userProfile != null)
+                {
+                    FirstNameTextBox.Text = userProfile.FirstName;
+                    LastNameTextBox.Text = userProfile.LastName;
+                    UsernameTextBox.Text = userProfile.Username;
+                    AboutTextBox.Text = userProfile.About ?? string.Empty;
+
+                    // Set initials in the preview
+                    var firstInitial = string.IsNullOrEmpty(userProfile.FirstName) ? "" : userProfile.FirstName[0].ToString();
+                    var lastInitial = string.IsNullOrEmpty(userProfile.LastName) ? "" : userProfile.LastName[0].ToString();
+                    InitialsText.Text = (firstInitial + lastInitial).ToUpper();
+                }
             }
             catch (Exception ex)
             {
@@ -64,18 +75,11 @@ namespace Kabutar_WPF.Views
         {
             try
             {
-                // Validate inputs
+                // Validate inputs (only firstname and username are required)
                 if (string.IsNullOrWhiteSpace(FirstNameTextBox.Text))
                 {
                     MessageBox.Show("Ism kiritilishi shart.", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Warning);
                     FirstNameTextBox.Focus();
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(LastNameTextBox.Text))
-                {
-                    MessageBox.Show("Familiya kiritilishi shart.", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    LastNameTextBox.Focus();
                     return;
                 }
 
