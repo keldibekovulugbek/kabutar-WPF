@@ -86,10 +86,13 @@ namespace Kabutar_WPF.ViewModels.Auth
                 if (success)
                 {
                     // Verification successful - navigate to login view
-                    Application.Current.Dispatcher.Invoke(() =>
+                    Application.Current.Dispatcher.Invoke(async () =>
                     {
-                        MessageBox.Show("Email verified successfully! You can now log in.",
-                            "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        Kabutar_WPF.Helpers.NotificationService.Show("Email tasdiqlandi! Tizimga kirishingiz mumkin.",
+                            Kabutar_WPF.Helpers.NotificationType.Success);
+
+                        // Wait a bit for notification to be visible
+                        await System.Threading.Tasks.Task.Delay(1500);
 
                         var loginView = new LoginView();
                         loginView.Show();

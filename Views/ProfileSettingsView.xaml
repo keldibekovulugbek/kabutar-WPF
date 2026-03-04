@@ -38,20 +38,34 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Profile Picture Preview -->
-                    <Border Grid.Column="0"
-                            Width="100"
-                            Height="100"
-                            CornerRadius="50"
-                            Background="{DynamicResource PrimaryBrush}"
-                            Margin="0,0,20,0">
-                        <TextBlock x:Name="InitialsText"
-                                   Text="AB"
-                                   Foreground="White"
-                                   FontSize="36"
-                                   FontWeight="Bold"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
+                    <Grid Grid.Column="0"
+                          Width="100"
+                          Height="100"
+                          Margin="0,0,20,0">
+                        <!-- Initials fallback -->
+                        <Border Width="100" Height="100"
+                                CornerRadius="50"
+                                Background="{DynamicResource PrimaryBrush}">
+                            <TextBlock x:Name="InitialsText"
+                                       Text=""
+                                       Foreground="White"
+                                       FontSize="36"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- Profile Image (shown when available) -->
+                        <Border x:Name="ProfileImageBorder"
+                                Width="100" Height="100"
+                                CornerRadius="50"
+                                Visibility="Collapsed">
+                            <Border.Background>
+                                <ImageBrush x:Name="ProfileImage"
+                                            Stretch="UniformToFill"/>
+                            </Border.Background>
+                        </Border>
+                    </Grid>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <Button Content="Rasm tanlash"

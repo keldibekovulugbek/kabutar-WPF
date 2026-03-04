@@ -12,7 +12,7 @@ namespace Kabutar_WPF.Services
         private static ApiClient? _instance;
         private static readonly object _lock = new object();
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "http://localhost:5237/api/";  // Added trailing slash
+        private const string BaseUrl = "http://localhost:5237/api/";
 
         public static ApiClient Instance
         {
@@ -59,7 +59,6 @@ namespace Kabutar_WPF.Services
                 var json = JsonConvert.SerializeObject(data);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                // Remove leading slash to work correctly with BaseAddress
                 var relativeEndpoint = endpoint.TrimStart('/');
                 var fullUrl = $"{BaseUrl}{relativeEndpoint}";
                 Console.WriteLine($"[API] Sending POST to: {fullUrl}");
@@ -90,7 +89,6 @@ namespace Kabutar_WPF.Services
             }
             catch (Exception ex) when (ex.Message.StartsWith("Server bilan") || ex.Message.Contains("Email") || ex.Message.Contains("Parol") || ex.Message.Contains("Foydalanuvchi"))
             {
-                // Already a user-friendly message, re-throw it
                 throw;
             }
             catch (Exception ex)
@@ -107,7 +105,6 @@ namespace Kabutar_WPF.Services
                 var json = JsonConvert.SerializeObject(data);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                // Remove leading slash to work correctly with BaseAddress
                 var relativeEndpoint = endpoint.TrimStart('/');
                 var fullUrl = $"{BaseUrl}{relativeEndpoint}";
                 Console.WriteLine($"[API] Sending POST to: {fullUrl}");
@@ -122,7 +119,6 @@ namespace Kabutar_WPF.Services
                     return true;
                 }
 
-                // Read error message from response
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"[API] Error response: {errorContent}");
 
@@ -141,7 +137,6 @@ namespace Kabutar_WPF.Services
             }
             catch (Exception ex) when (ex.Message.StartsWith("Server bilan") || ex.Message.Contains("Email") || ex.Message.Contains("Parol") || ex.Message.Contains("Foydalanuvchi"))
             {
-                // Already a user-friendly message, re-throw it
                 throw;
             }
             catch (Exception ex)
@@ -155,15 +150,12 @@ namespace Kabutar_WPF.Services
         {
             try
             {
-                // Try to parse as JSON error response
                 var errorObj = JsonConvert.DeserializeObject<dynamic>(errorContent);
 
-                // Backend custom error format: {"StatusCode": 404, "Message": "User not found."}
                 if (errorObj?.Message != null)
                 {
                     string message = errorObj.Message.ToString();
 
-                    // Translate common error messages to Uzbek
                     if (message.Contains("User not found") || message.Contains("not found"))
                         return "Foydalanuvchi topilmadi. Email yoki username xato kiritilgan.";
                     if (message.Contains("Invalid password") || message.Contains("Incorrect password") || message.Contains("password is incorrect"))
@@ -178,7 +170,6 @@ namespace Kabutar_WPF.Services
                     return message;
                 }
 
-                // Validation error format: {"errors": {"Password": ["Password must be..."]} }
                 if (errorObj?.errors != null)
                 {
                     var errors = new System.Collections.Generic.List<string>();
@@ -192,7 +183,6 @@ namespace Kabutar_WPF.Services
                         {
                             string message = msg.ToString();
 
-                            // Translate validation messages
                             if (message.Contains("Password must be"))
                                 errors.Add("Parol 8-50 ta belgidan iborat bo'lishi va kamida 1 ta kichik, 1 ta katta harf hamda 1 ta raqam bo'lishi kerak.");
                             else if (message.Contains("Password is required") || message.Contains("Password cannot be empty"))
@@ -213,7 +203,6 @@ namespace Kabutar_WPF.Services
                     return errors.Count > 0 ? string.Join("\n", errors) : "Ma'lumotlar noto'g'ri to'ldirilgan.";
                 }
 
-                // If no specific error format found, return generic message based on status code
                 return statusCode switch
                 {
                     400 => "Ma'lumotlar noto'g'ri to'ldirilgan. Iltimos, qayta tekshiring.",
@@ -225,7 +214,6 @@ namespace Kabutar_WPF.Services
             }
             catch
             {
-                // If parsing fails, return generic error based on status code
                 return statusCode switch
                 {
                     400 => "Ma'lumotlar noto'g'ri to'ldirilgan.",
@@ -304,6 +292,52 @@ namespace Kabutar_WPF.Services
 
                 var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
                 throw new Exception(errorMessage);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"[API] Network error: {ex.Message}");
+                throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("Server bilan"))
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[API] Unexpected error: {ex.Message}");
+                throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
+            }
+        }
+
+        public async Task<TResponse?> PutWithResponseAsync<TRequest, TResponse>(string endpoint, TRequest data)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(data);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var relativeEndpoint = endpoint.TrimStart('/');
+                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
+                Console.WriteLine($"[API] Sending PUT to: {fullUrl}");
+                Console.WriteLine($"[API] Request body: {json}");
+
+                var response = await _httpClient.PutAsync(relativeEndpoint, content);
+
+                Console.WriteLine($"[API] Response status: {response.StatusCode}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[API] Error response: {errorContent}");
+
+                    var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
+                    throw new Exception(errorMessage);
+                }
+
+                var responseJson = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[API] Response body: {responseJson}");
+
+                return JsonConvert.DeserializeObject<TResponse>(responseJson);
             }
             catch (HttpRequestException ex)
             {

@@ -142,10 +142,13 @@ namespace Kabutar_WPF.ViewModels.Auth
                 if (success)
                 {
                     // Password reset successful - navigate to login view
-                    Application.Current.Dispatcher.Invoke(() =>
+                    Application.Current.Dispatcher.Invoke(async () =>
                     {
-                        MessageBox.Show("Password reset successfully! You can now log in with your new password.",
-                            "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        Kabutar_WPF.Helpers.NotificationService.Show("Parol muvaffaqiyatli o'zgartirildi! Yangi parol bilan tizimga kirishingiz mumkin.",
+                            Kabutar_WPF.Helpers.NotificationType.Success);
+
+                        // Wait a bit for notification to be visible
+                        await System.Threading.Tasks.Task.Delay(1500);
 
                         var loginView = new LoginView();
                         loginView.Show();

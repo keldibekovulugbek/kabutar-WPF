@@ -41,6 +41,7 @@ namespace Kabutar_WPF.Services
                     LastMessageTime = dto.Timestamp.ToLocalTime(),
                     UnreadCount = dto.UnreadCount,
                     IsOnline = dto.IsOnline,
+                    LastActive = dto.LastActive?.ToLocalTime(),
                     IsGroup = false
                 }).ToList();
             }
@@ -51,7 +52,6 @@ namespace Kabutar_WPF.Services
         }
     }
 
-    // DTO matching backend
     internal class ChatUserDTO
     {
         public long UserId { get; set; }
@@ -63,5 +63,6 @@ namespace Kabutar_WPF.Services
         public DateTime Timestamp { get; set; }
         public int UnreadCount { get; set; }
         public bool IsOnline { get; set; }
+        public DateTime? LastActive { get; set; }
     }
 }

@@ -13,7 +13,7 @@
     </Window.DataContext>
 
     <Border Background="{DynamicResource BackgroundBrush}" CornerRadius="0">
-        <Grid>
+        <Grid x:Name="RootGrid">
             <Grid.RowDefinitions>
                 <RowDefinition Height="35"/>
                 <RowDefinition Height="*"/>

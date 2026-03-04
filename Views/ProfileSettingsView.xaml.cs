@@ -1,8 +1,10 @@
 using System;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using Kabutar_WPF.Models.Users;
 using Kabutar_WPF.Services;
+using Kabutar_WPF.Helpers;
 
 namespace Kabutar_WPF.Views
 {
@@ -11,6 +13,7 @@ namespace Kabutar_WPF.Views
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
         private string? _selectedImagePath;
+        private Window? _parentWindow;
 
         public ProfileSettingsView(IUserService userService, IAuthService authService)
         {
@@ -18,41 +21,89 @@ namespace Kabutar_WPF.Views
             _userService = userService;
             _authService = authService;
 
-            LoadCurrentUserData();
+            Loaded += async (s, e) => await LoadCurrentUserData();
         }
 
-        private async void LoadCurrentUserData()
+        private async System.Threading.Tasks.Task LoadCurrentUserData()
         {
             try
             {
-                // Get user ID from auth service
                 var userId = _authService.GetUserId();
+
                 if (userId == null)
                 {
-                    MessageBox.Show("Foydalanuvchi ma'lumotlari topilmadi.", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ShowNotification("Foydalanuvchi ma'lumotlari topilmadi.", NotificationType.Error);
                     Close();
                     return;
                 }
 
-                // Load current user data from API
                 var userProfile = await _userService.GetCurrentUserAsync();
+
                 if (userProfile != null)
                 {
-                    FirstNameTextBox.Text = userProfile.FirstName;
-                    LastNameTextBox.Text = userProfile.LastName;
-                    UsernameTextBox.Text = userProfile.Username;
+                    FirstNameTextBox.Text = userProfile.FirstName ?? string.Empty;
+                    LastNameTextBox.Text = userProfile.LastName ?? string.Empty;
+                    UsernameTextBox.Text = userProfile.Username ?? string.Empty;
                     AboutTextBox.Text = userProfile.About ?? string.Empty;
 
-                    // Set initials in the preview
                     var firstInitial = string.IsNullOrEmpty(userProfile.FirstName) ? "" : userProfile.FirstName[0].ToString();
                     var lastInitial = string.IsNullOrEmpty(userProfile.LastName) ? "" : userProfile.LastName[0].ToString();
-                    InitialsText.Text = (firstInitial + lastInitial).ToUpper();
+                    var initials = (firstInitial + lastInitial).ToUpper();
+
+                    if (string.IsNullOrEmpty(initials) && !string.IsNullOrEmpty(userProfile.Username))
+                        initials = userProfile.Username[0].ToString().ToUpper();
+
+                    InitialsText.Text = initials;
+
+                    if (!string.IsNullOrEmpty(userProfile.ProfilePicture))
+                    {
+                        await LoadProfileImageAsync(userProfile.ProfilePicture);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ma'lumotlarni yuklashda xatolik: {ex.Message}", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowNotification($"Ma'lumotlarni yuklashda xatolik: {ex.Message}", NotificationType.Error);
             }
+        }
+
+        private async System.Threading.Tasks.Task LoadProfileImageAsync(string imagePath)
+        {
+            try
+            {
+                var imageUrl = GetFullImageUrl(imagePath);
+
+                using var httpClient = new System.Net.Http.HttpClient();
+                var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
+
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    var bitmap = new BitmapImage();
+                    using (var stream = new System.IO.MemoryStream(imageBytes))
+                    {
+                        bitmap.BeginInit();
+                        bitmap.StreamSource = stream;
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.EndInit();
+                        bitmap.Freeze();
+                    }
+
+                    ProfileImage.ImageSource = bitmap;
+                    ProfileImageBorder.Visibility = Visibility.Visible;
+                });
+            }
+            catch
+            {
+                ProfileImageBorder.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private string GetFullImageUrl(string imagePath)
+        {
+            if (imagePath.StartsWith("http://") || imagePath.StartsWith("https://"))
+                return imagePath;
+
+            return $"http://localhost:5237/{imagePath.TrimStart('/')}";
         }
 
         private void SelectImage_Click(object sender, RoutedEventArgs e)
@@ -68,6 +119,22 @@ namespace Kabutar_WPF.Views
             {
                 _selectedImagePath = openFileDialog.FileName;
                 SelectedImagePath.Text = System.IO.Path.GetFileName(_selectedImagePath);
+
+                try
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(_selectedImagePath);
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+
+                    ProfileImage.ImageSource = bitmap;
+                    ProfileImageBorder.Visibility = Visibility.Visible;
+                }
+                catch
+                {
+                    ProfileImageBorder.Visibility = Visibility.Collapsed;
+                }
             }
         }
 
@@ -75,46 +142,42 @@ namespace Kabutar_WPF.Views
         {
             try
             {
-                // Validate inputs (only firstname and username are required)
                 if (string.IsNullOrWhiteSpace(FirstNameTextBox.Text))
                 {
-                    MessageBox.Show("Ism kiritilishi shart.", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowNotification("Ism kiritilishi shart.", NotificationType.Warning);
                     FirstNameTextBox.Focus();
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(UsernameTextBox.Text))
                 {
-                    MessageBox.Show("Username kiritilishi shart.", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ShowNotification("Username kiritilishi shart.", NotificationType.Warning);
                     UsernameTextBox.Focus();
                     return;
                 }
 
-                // Disable button to prevent double-click
                 var saveButton = sender as System.Windows.Controls.Button;
                 if (saveButton != null)
                     saveButton.IsEnabled = false;
 
-                // Update profile
                 var updateRequest = new UserUpdateRequest
                 {
                     Firstname = FirstNameTextBox.Text.Trim(),
-                    Lastname = LastNameTextBox.Text.Trim(),
+                    Lastname = string.IsNullOrWhiteSpace(LastNameTextBox.Text) ? null : LastNameTextBox.Text.Trim(),
                     Username = UsernameTextBox.Text.Trim(),
-                    About = AboutTextBox.Text.Trim()
+                    About = string.IsNullOrWhiteSpace(AboutTextBox.Text) ? null : AboutTextBox.Text.Trim()
                 };
 
                 var success = await _userService.UpdateProfileAsync(updateRequest);
 
                 if (!success)
                 {
-                    MessageBox.Show("Profilni yangilashda xatolik.", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ShowNotification("Profilni yangilashda xatolik.", NotificationType.Error);
                     if (saveButton != null)
                         saveButton.IsEnabled = true;
                     return;
                 }
 
-                // Upload image if selected
                 if (!string.IsNullOrEmpty(_selectedImagePath))
                 {
                     try
@@ -123,22 +186,31 @@ namespace Kabutar_WPF.Views
                     }
                     catch (Exception imgEx)
                     {
-                        MessageBox.Show($"Rasmni yuklashda xatolik: {imgEx.Message}\n\nLekin boshqa ma'lumotlar saqlandi.", "Ogohlantirish", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        ShowNotification($"Rasmni yuklashda xatolik: {imgEx.Message}. Lekin boshqa ma'lumotlar saqlandi.", NotificationType.Warning, 5000);
                     }
                 }
 
-                MessageBox.Show("Profil muvaffaqiyatli yangilandi!", "Muvaffaqiyat", MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowNotification("Profil muvaffaqiyatli yangilandi!", NotificationType.Success);
+
+                await System.Threading.Tasks.Task.Delay(1500);
                 DialogResult = true;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Xatolik yuz berdi: {ex.Message}", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowNotification($"Xatolik yuz berdi: {ex.Message}", NotificationType.Error);
 
-                // Re-enable button
                 var saveButton = sender as System.Windows.Controls.Button;
                 if (saveButton != null)
                     saveButton.IsEnabled = true;
+            }
+        }
+
+        private void ShowNotification(string message, NotificationType type, int durationMs = 3000)
+        {
+            if (Owner is MainView mainView)
+            {
+                NotificationService.Show(message, type, durationMs);
             }
         }
 

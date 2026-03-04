@@ -20,6 +20,8 @@ namespace Kabutar_WPF.Services
         void ClearToken();
         long? GetUserId();
         bool IsAuthenticated { get; }
+        bool IsTokenValid();
+        bool TryRestoreSession();
     }
 
     public class AuthService : IAuthService
@@ -104,14 +106,26 @@ namespace Kabutar_WPF.Services
 
         public void SaveToken(string token)
         {
+            TokenStorage.SaveToken(token);
+
             Application.Current.Properties[TokenKey] = token;
         }
 
         public string? GetToken()
         {
-            return Application.Current.Properties.Contains(TokenKey)
-                ? Application.Current.Properties[TokenKey] as string
-                : null;
+            if (Application.Current.Properties.Contains(TokenKey))
+            {
+                return Application.Current.Properties[TokenKey] as string;
+            }
+
+            var token = TokenStorage.LoadToken();
+            if (!string.IsNullOrEmpty(token))
+            {
+                Application.Current.Properties[TokenKey] = token;
+                return token;
+            }
+
+            return null;
         }
 
         public void ClearToken()
@@ -120,6 +134,9 @@ namespace Kabutar_WPF.Services
             {
                 Application.Current.Properties.Remove(TokenKey);
             }
+
+            TokenStorage.ClearToken();
+
             _apiClient.ClearAuthToken();
         }
 
@@ -145,6 +162,58 @@ namespace Kabutar_WPF.Services
             catch
             {
                 return null;
+            }
+        }
+
+        public bool IsTokenValid()
+        {
+            try
+            {
+                var token = GetToken();
+                if (string.IsNullOrEmpty(token))
+                    return false;
+
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+
+                if (jwtToken.ValidTo < DateTime.UtcNow)
+                {
+                    ClearToken();
+                    return false;
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool TryRestoreSession()
+        {
+            try
+            {
+                var token = TokenStorage.LoadToken();
+                if (string.IsNullOrEmpty(token))
+                    return false;
+
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+
+                if (jwtToken.ValidTo < DateTime.UtcNow)
+                {
+                    TokenStorage.ClearToken();
+                    return false;
+                }
+
+                Application.Current.Properties[TokenKey] = token;
+                _apiClient.SetAuthToken(token);
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

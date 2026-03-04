@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Kabutar_WPF.Helpers;
 
 namespace Kabutar_WPF.Views.Auth
 {
@@ -10,6 +11,7 @@ namespace Kabutar_WPF.Views.Auth
         public VerifyEmailView()
         {
             InitializeComponent();
+            Loaded += (s, e) => NotificationService.Initialize(RootGrid);
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

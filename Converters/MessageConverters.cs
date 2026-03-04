@@ -13,8 +13,8 @@ namespace Kabutar_WPF.Converters
             if (value is bool isFromMe)
             {
                 return isFromMe
-                    ? new SolidColorBrush(Color.FromRgb(0, 123, 255)) // Primary blue
-                    : new SolidColorBrush(Color.FromRgb(240, 242, 245)); // Light gray
+                    ? new SolidColorBrush(Color.FromRgb(0, 123, 255))
+                    : new SolidColorBrush(Color.FromRgb(240, 242, 245));
             }
             return new SolidColorBrush(Color.FromRgb(240, 242, 245));
         }
@@ -51,8 +51,8 @@ namespace Kabutar_WPF.Converters
             if (value is bool isFromMe)
             {
                 return isFromMe
-                    ? new SolidColorBrush(Color.FromRgb(230, 240, 255)) // Light blue
-                    : new SolidColorBrush(Color.FromRgb(108, 117, 125)); // Gray
+                    ? new SolidColorBrush(Color.FromRgb(230, 240, 255))
+                    : new SolidColorBrush(Color.FromRgb(108, 117, 125));
             }
             return new SolidColorBrush(Color.FromRgb(108, 117, 125));
         }
@@ -94,6 +94,48 @@ namespace Kabutar_WPF.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    public class LastSeenMultiConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length < 2)
+                return "Offline";
+
+            bool isOnline = values[0] is bool online && online;
+            DateTime? lastActive = values[1] as DateTime?;
+
+            if (isOnline)
+                return "Onlayn";
+
+            if (lastActive.HasValue)
+                return FormatLastSeen(lastActive.Value);
+
+            return "Offline";
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
+        private string FormatLastSeen(DateTime lastActive)
+        {
+            var now = DateTime.Now;
+            var diff = now - lastActive;
+
+            if (diff.TotalMinutes < 1)
+                return "hozirgina chiqdi";
+            if (diff.TotalMinutes < 60)
+                return $"{(int)diff.TotalMinutes} daqiqa oldin";
+            if (diff.TotalHours < 24)
+                return $"{(int)diff.TotalHours} soat oldin";
+            if (diff.TotalDays < 7)
+                return $"{(int)diff.TotalDays} kun oldin";
+
+            return lastActive.ToString("d-MMMM");
         }
     }
 }

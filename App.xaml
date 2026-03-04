@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:conv="clr-namespace:Kabutar_WPF.Converters"
-             StartupUri="Views/Auth/LoginView.xaml">
+             xmlns:system="clr-namespace:System;assembly=mscorlib">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -11,7 +11,6 @@
                 <ResourceDictionary Source="Resources/Styles/TextBoxStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             
-            <!-- Converters -->
             <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
             <conv:InitialsConverter x:Key="InitialsConverter"/>
@@ -23,6 +22,14 @@
             <conv:MessageTimeForegroundConverter x:Key="MessageTimeForegroundConverter"/>
             <conv:MessageAlignmentConverter x:Key="MessageAlignmentConverter"/>
             <conv:OnlineStatusConverter x:Key="OnlineStatusConverter"/>
+            <conv:LastSeenMultiConverter x:Key="LastSeenMultiConverter"/>
+            <conv:ImagePathToUrlConverter x:Key="ImagePathToUrlConverter"/>
+            <conv:ImagePathToVisibilityConverter x:Key="ImagePathToVisibilityConverter"/>
+            <conv:NoImageToVisibilityConverter x:Key="NoImageToVisibilityConverter"/>
+            <conv:ReadStatusConverter x:Key="ReadStatusConverter"/>
+            <conv:ReadStatusColorConverter x:Key="ReadStatusColorConverter"/>
+
+            <system:Double x:Key="ChatFontSize">14</system:Double>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

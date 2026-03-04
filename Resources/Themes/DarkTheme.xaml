@@ -5,8 +5,11 @@
 
     <!-- Backgrounds -->
     <SolidColorBrush x:Key="BackgroundBrush" Color="#1E1E1E"/>
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#2D2D2D"/>
     <SolidColorBrush x:Key="SecondaryBackgroundBrush" Color="#2D2D2D"/>
     <SolidColorBrush x:Key="InputBackgroundBrush" Color="#3A3A3A"/>
+    <SolidColorBrush x:Key="HoverBrush" Color="#3A3A3A"/>
+    <SolidColorBrush x:Key="PrimaryLightBrush" Color="#4C3D69"/>
 
     <!-- Text Colors -->
     <SolidColorBrush x:Key="TextBrush" Color="#FFFFFF"/>
@@ -25,5 +28,6 @@
     <SolidColorBrush x:Key="ErrorBrush" Color="#EF4444"/>
     <SolidColorBrush x:Key="SuccessBrush" Color="#10B981"/>
     <SolidColorBrush x:Key="WarningBrush" Color="#F59E0B"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="#DC2626"/>
 
 </ResourceDictionary>

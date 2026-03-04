@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Kabutar_WPF.Core;
+using Kabutar_WPF.Helpers;
 using Kabutar_WPF.Models.Chat;
 using Kabutar_WPF.Models.Messages;
 using Kabutar_WPF.Models.Search;
@@ -138,8 +139,7 @@ namespace Kabutar_WPF.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Chatlarni yuklashda xatolik: {ex.Message}", "Xatolik",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                NotificationService.Show($"Chatlarni yuklashda xatolik: {ex.Message}", NotificationType.Error);
             }
             finally
             {
@@ -151,10 +151,8 @@ namespace Kabutar_WPF.ViewModels
         {
             if (SelectedChat == null) return;
 
-            // Skip if same chat is already loaded
             if (_lastLoadedChatId == SelectedChat.Id) return;
 
-            // Cancel previous load operation
             _loadMessagesCts?.Cancel();
             _loadMessagesCts = new CancellationTokenSource();
             var token = _loadMessagesCts.Token;
@@ -167,7 +165,6 @@ namespace Kabutar_WPF.ViewModels
                 var messages = await _messageService.GetConversationAsync(SelectedChat.Id);
                 _lastLoadedChatId = SelectedChat.Id;
 
-                // Check if cancelled
                 if (token.IsCancellationRequested) return;
 
                 DateTime? lastDate = null;
@@ -176,7 +173,6 @@ namespace Kabutar_WPF.ViewModels
                 {
                     var messageDate = msg.Created.ToLocalTime().Date;
 
-                    // Add date separator if date changed
                     if (lastDate == null || lastDate.Value.Date != messageDate)
                     {
                         Messages.Add(new MessageItem
@@ -196,14 +192,13 @@ namespace Kabutar_WPF.ViewModels
                             ChatId = SelectedChat.Id,
                             SenderId = msg.SenderId,
                             Content = msg.Content,
-                            SentAt = msg.Created.ToLocalTime(), // Convert UTC to local time
+                            SentAt = msg.Created.ToLocalTime(),
                             IsFromMe = msg.SenderId == _myUserId,
                             IsRead = msg.IsRead,
                             IsSent = true
                         }
                     });
 
-                    // Mark unread messages as read (messages sent to me)
                     if (!msg.IsRead && msg.ReceiverId == _myUserId)
                     {
                         _ = _messageService.MarkAsReadAsync(msg.Id);
@@ -212,14 +207,12 @@ namespace Kabutar_WPF.ViewModels
             }
             catch (OperationCanceledException)
             {
-                // Ignore cancellation
             }
             catch (Exception ex)
             {
                 if (!token.IsCancellationRequested)
                 {
-                    MessageBox.Show($"Xabarlarni yuklashda xatolik: {ex.Message}", "Xatolik",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    NotificationService.Show($"Xabarlarni yuklashda xatolik: {ex.Message}", NotificationType.Error);
                 }
             }
             finally
@@ -248,13 +241,11 @@ namespace Kabutar_WPF.ViewModels
 
                 if (result != null)
                 {
-                    // Add users first
                     foreach (var user in result.Users)
                     {
                         SearchResults.Add(user);
                     }
 
-                    // Then add message results
                     foreach (var message in result.Messages)
                     {
                         SearchResults.Add(message);
@@ -263,8 +254,7 @@ namespace Kabutar_WPF.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Qidiruv xatoligi: {ex.Message}", "Xatolik",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                NotificationService.Show($"Qidiruv xatoligi: {ex.Message}", NotificationType.Error);
             }
             finally
             {
@@ -276,7 +266,6 @@ namespace Kabutar_WPF.ViewModels
         {
             if (user == null) return;
 
-            // Check if chat already exists
             var existingChat = Chats.FirstOrDefault(c => c.Id == user.Id);
             if (existingChat != null)
             {
@@ -284,7 +273,6 @@ namespace Kabutar_WPF.ViewModels
             }
             else
             {
-                // Create new chat
                 var newChat = new ChatItem
                 {
                     Id = user.Id,
@@ -301,7 +289,6 @@ namespace Kabutar_WPF.ViewModels
                 SelectedChat = newChat;
             }
 
-            // Clear search
             SearchText = string.Empty;
             SearchResults.Clear();
             IsSearching = false;
@@ -311,7 +298,6 @@ namespace Kabutar_WPF.ViewModels
         {
             if (msgResult == null) return;
 
-            // Find or create chat for this user
             var existingChat = Chats.FirstOrDefault(c => c.Id == msgResult.UserId);
             if (existingChat != null)
             {
@@ -334,7 +320,6 @@ namespace Kabutar_WPF.ViewModels
                 SelectedChat = newChat;
             }
 
-            // Clear search
             SearchText = string.Empty;
             SearchResults.Clear();
             IsSearching = false;
@@ -369,7 +354,6 @@ namespace Kabutar_WPF.ViewModels
                     var now = DateTime.Now;
                     var messageDate = now.Date;
 
-                    // Check if we need to add a date separator
                     var lastItem = Messages.LastOrDefault();
                     if (lastItem != null && !lastItem.IsDateSeparator && lastItem.Message != null)
                     {
@@ -385,7 +369,6 @@ namespace Kabutar_WPF.ViewModels
                     }
                     else if (lastItem == null)
                     {
-                        // First message, add date separator
                         Messages.Add(new MessageItem
                         {
                             IsDateSeparator = true,
@@ -393,10 +376,9 @@ namespace Kabutar_WPF.ViewModels
                         });
                     }
 
-                    // Add message to UI
                     var newMessage = new Message
                     {
-                        Id = DateTime.Now.Ticks, // Temporary ID
+                        Id = DateTime.Now.Ticks,
                         ChatId = SelectedChat.Id,
                         Content = MessageText.Trim(),
                         SentAt = now,
@@ -411,20 +393,15 @@ namespace Kabutar_WPF.ViewModels
                         Message = newMessage
                     });
 
-                    // Update last message in chat list
                     SelectedChat.LastMessage = MessageText.Trim();
                     SelectedChat.LastMessageTime = now;
 
-                    // Clear input
                     MessageText = string.Empty;
-
-                    // Scroll to bottom would be nice here
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Xabar yuborishda xatolik: {ex.Message}", "Xatolik",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                NotificationService.Show($"Xabar yuborishda xatolik: {ex.Message}", NotificationType.Error);
             }
             finally
             {
@@ -441,7 +418,6 @@ namespace Kabutar_WPF.ViewModels
                 var loginView = new Views.Auth.LoginView();
                 loginView.Show();
 
-                // Close current window
                 foreach (Window window in Application.Current.Windows)
                 {
                     if (window.DataContext == this)
