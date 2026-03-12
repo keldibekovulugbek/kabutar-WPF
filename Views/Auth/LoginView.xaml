@@ -15,13 +15,17 @@
         <vm:LoginViewModel/>
     </Window.DataContext>
 
+    <Window.InputBindings>
+        <KeyBinding Key="Return" Command="{Binding LoginCommand}"/>
+    </Window.InputBindings>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Custom Title Bar -->
+
         <Border Grid.Row="0"
                 Background="{DynamicResource PrimaryBrush}"
                 MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
@@ -35,7 +39,7 @@
 
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Right">
-                    <!-- Theme Toggle -->
+
                     <Button Content="🌙"
                             Width="35"
                             Height="35"
@@ -46,7 +50,7 @@
                             Cursor="Hand"
                             Click="ThemeToggle_Click"/>
 
-                    <!-- Close Button -->
+
                     <Button Content="✕"
                             Width="35"
                             Height="35"
@@ -70,13 +74,13 @@
             </Grid>
         </Border>
 
-        <!-- Main Content -->
+
         <Grid Grid.Row="1">
             <StackPanel VerticalAlignment="Center"
                         HorizontalAlignment="Center"
                         Width="450">
 
-                <!-- Logo/Title -->
+
                 <TextBlock Text="Kabutar"
                            FontSize="48"
                            FontWeight="Bold"
@@ -84,7 +88,7 @@
                            Foreground="{DynamicResource TextBrush}"
                            Margin="0,0,0,30"/>
 
-                <!-- Welcome Text -->
+
                 <TextBlock Text="Welcome back"
                            FontSize="32"
                            FontWeight="SemiBold"
@@ -92,13 +96,13 @@
                            Foreground="{DynamicResource TextBrush}"
                            Margin="0,0,0,40"/>
 
-                <!-- Username TextBox -->
+
                 <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource ModernTextBoxStyle}"
                          Tag="Username or Email"
                          Margin="0,0,0,15"/>
 
-                <!-- Password Box -->
+
                 <PasswordBox x:Name="PasswordBox"
                              Style="{StaticResource ModernPasswordBoxStyle}"
                              Tag="Password"
@@ -106,20 +110,20 @@
                              PasswordChanged="PasswordBox_PasswordChanged"
                              Margin="0,0,0,10"/>
 
-                <!-- Forgot Password -->
+
                 <Button Content="Forgot password?"
                         Style="{StaticResource TextButtonStyle}"
                         HorizontalAlignment="Left"
                         Margin="0,0,0,25"
                         Command="{Binding NavigateToForgotPasswordCommand}"/>
 
-                <!-- Login Button -->
+
                 <Button Content="Log in"
                         Style="{StaticResource PrimaryButtonStyle}"
                         Margin="0,0,0,20"
                         Command="{Binding LoginCommand}"/>
 
-                <!-- Sign Up Link -->
+
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Center">
                     <TextBlock Text="New user? "
@@ -130,7 +134,7 @@
                             Command="{Binding NavigateToRegisterCommand}"/>
                 </StackPanel>
 
-                <!-- Error Message -->
+
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource ErrorBrush}"
                            FontSize="14"
@@ -139,7 +143,7 @@
                            TextWrapping="Wrap"
                            Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                <!-- Loading Indicator -->
+
                 <TextBlock Text="Loading..."
                            Foreground="{DynamicResource PrimaryBrush}"
                            FontSize="14"

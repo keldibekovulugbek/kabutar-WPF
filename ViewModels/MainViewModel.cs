@@ -47,6 +47,10 @@ namespace Kabutar_WPF.ViewModels
             SendMessageCommand = new RelayCommand(async _ => await SendMessageAsync(), _ => CanSendMessage());
             SelectUserCommand = new RelayCommand<UserSearchResult>(user => SelectUserFromSearch(user));
             SelectMessageResultCommand = new RelayCommand<MessageSearchResult>(msgResult => SelectMessageResult(msgResult));
+            DeleteMessageCommand = new RelayCommand<MessageItem>(async item => await DeleteMessageAsync(item, false));
+            DeleteMessageForBothCommand = new RelayCommand<MessageItem>(async item => await DeleteMessageAsync(item, true));
+            ClearChatCommand = new RelayCommand<ChatItem>(item => ShowClearChatDialog(item));
+            ClearChatForBothCommand = new RelayCommand<ChatItem>(item => ShowClearChatDialog(item));
 
             _ = LoadChatsAsync();
         }
@@ -66,6 +70,11 @@ namespace Kabutar_WPF.ViewModels
                     (SendMessageCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 }
             }
+        }
+
+        public void NotifySelectedChatChanged()
+        {
+            OnPropertyChanged(nameof(SelectedChat));
         }
 
         public string SearchText
@@ -123,6 +132,13 @@ namespace Kabutar_WPF.ViewModels
         public ICommand SendMessageCommand { get; }
         public ICommand SelectUserCommand { get; }
         public ICommand SelectMessageResultCommand { get; }
+        public ICommand DeleteMessageCommand { get; }
+        public ICommand DeleteMessageForBothCommand { get; }
+        public ICommand ClearChatCommand { get; }
+        public ICommand ClearChatForBothCommand { get; }
+
+
+        public Func<ChatItem, (bool confirmed, bool deleteForBoth)>? ShowClearChatDialogFunc { get; set; }
 
         private async Task LoadChatsAsync()
         {
@@ -192,6 +208,7 @@ namespace Kabutar_WPF.ViewModels
                             ChatId = SelectedChat.Id,
                             SenderId = msg.SenderId,
                             Content = msg.Content,
+                            AttachmentUrl = msg.AttachmentUrl,
                             SentAt = msg.Created.ToLocalTime(),
                             IsFromMe = msg.SenderId == _myUserId,
                             IsRead = msg.IsRead,
@@ -203,6 +220,12 @@ namespace Kabutar_WPF.ViewModels
                     {
                         _ = _messageService.MarkAsReadAsync(msg.Id);
                     }
+                }
+
+
+                if (!token.IsCancellationRequested && SelectedChat != null)
+                {
+                    SelectedChat.UnreadCount = 0;
                 }
             }
             catch (OperationCanceledException)
@@ -393,10 +416,18 @@ namespace Kabutar_WPF.ViewModels
                         Message = newMessage
                     });
 
-                    SelectedChat.LastMessage = MessageText.Trim();
-                    SelectedChat.LastMessageTime = now;
+                    var chat = SelectedChat;
+                    chat.LastMessage = MessageText.Trim();
+                    chat.LastMessageTime = now;
 
                     MessageText = string.Empty;
+
+
+                    var index = Chats.IndexOf(chat);
+                    if (index > 0)
+                    {
+                        Chats.Move(index, 0);
+                    }
                 }
             }
             catch (Exception ex)
@@ -406,6 +437,127 @@ namespace Kabutar_WPF.ViewModels
             finally
             {
                 IsLoading = false;
+            }
+        }
+
+        private async Task DeleteMessageAsync(MessageItem? item, bool deleteForBoth = false)
+        {
+            if (item == null || item.IsDateSeparator || item.Message == null) return;
+
+            try
+            {
+                var success = await _messageService.DeleteMessageAsync(item.Message.Id, deleteForBoth);
+                if (success)
+                {
+                    Messages.Remove(item);
+                    var msg = deleteForBoth ? "Xabar ikki tomondan o'chirildi" : "Xabar o'chirildi";
+                    NotificationService.Show(msg, NotificationType.Success);
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Show($"Xabarni o'chirishda xatolik: {ex.Message}", NotificationType.Error);
+            }
+        }
+
+        private void ShowClearChatDialog(ChatItem? chat)
+        {
+            if (chat == null || ShowClearChatDialogFunc == null) return;
+            var (confirmed, deleteForBoth) = ShowClearChatDialogFunc(chat);
+            if (confirmed)
+                _ = ClearChatAsync(chat, deleteForBoth);
+        }
+
+        private async Task ClearChatAsync(ChatItem? chat, bool clearForBoth)
+        {
+            if (chat == null) return;
+            try
+            {
+                var success = await _messageService.ClearChatAsync(chat.Id, clearForBoth);
+                if (success)
+                {
+                    if (SelectedChat?.Id == chat.Id)
+                        Messages.Clear();
+
+                    chat.LastMessage = "";
+                    chat.UnreadCount = 0;
+                    var msg = clearForBoth ? "Chat ikki tomondan tozalandi" : "Chat tarixi tozalandi";
+                    NotificationService.Show(msg, NotificationType.Success);
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Show($"Chatni tozalashda xatolik: {ex.Message}", NotificationType.Error);
+            }
+        }
+
+        public void ReceiveIncomingMessage(long senderId, string content, DateTime sentAtUtc, string? attachmentUrl = null)
+        {
+            var sentAt = sentAtUtc.ToLocalTime();
+
+
+            var chat = Chats.FirstOrDefault(c => c.Id == senderId);
+            if (chat == null)
+            {
+
+                _ = LoadChatsAsync();
+                return;
+            }
+
+            chat.LastMessage = content;
+            chat.LastMessageTime = sentAt;
+
+
+            var index = Chats.IndexOf(chat);
+            if (index > 0)
+                Chats.Move(index, 0);
+
+
+            if (SelectedChat?.Id == senderId)
+            {
+                chat.UnreadCount = 0;
+                var messageDate = sentAt.Date;
+                var lastItem = Messages.LastOrDefault();
+                bool needDateSep = lastItem == null
+                    || (lastItem.IsDateSeparator)
+                    || (lastItem.Message != null && lastItem.Message.SentAt.Date != messageDate);
+
+                if (needDateSep && (lastItem == null || lastItem.Message?.SentAt.Date != messageDate))
+                {
+                    Messages.Add(new MessageItem
+                    {
+                        IsDateSeparator = true,
+                        DateText = FormatDateSeparator(messageDate)
+                    });
+                }
+
+                Messages.Add(new MessageItem
+                {
+                    IsDateSeparator = false,
+                    Message = new Message
+                    {
+                        Id = sentAt.Ticks,
+                        ChatId = senderId,
+                        SenderId = senderId,
+                        Content = content,
+                        AttachmentUrl = attachmentUrl,
+                        SentAt = sentAt,
+                        IsFromMe = false,
+                        IsRead = false,
+                        IsSent = true
+                    }
+                });
+            }
+            else
+            {
+
+                chat.UnreadCount++;
+
+
+                var senderName = chat.Name;
+                var preview = !string.IsNullOrEmpty(content) ? content : "📷 Rasm";
+                if (preview.Length > 60) preview = preview[..60] + "…";
+                NotificationService.Show($"{senderName}: {preview}", NotificationType.Info, 4000);
             }
         }
 

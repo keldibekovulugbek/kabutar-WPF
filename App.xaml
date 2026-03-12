@@ -10,7 +10,7 @@
                 <ResourceDictionary Source="Resources/Styles/ButtonStyles.xaml"/>
                 <ResourceDictionary Source="Resources/Styles/TextBoxStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            
+
             <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
             <conv:InitialsConverter x:Key="InitialsConverter"/>
@@ -28,6 +28,7 @@
             <conv:NoImageToVisibilityConverter x:Key="NoImageToVisibilityConverter"/>
             <conv:ReadStatusConverter x:Key="ReadStatusConverter"/>
             <conv:ReadStatusColorConverter x:Key="ReadStatusColorConverter"/>
+            <conv:BoolToPaddingConverter x:Key="BoolToPaddingConverter"/>
 
             <system:Double x:Key="ChatFontSize">14</system:Double>
         </ResourceDictionary>

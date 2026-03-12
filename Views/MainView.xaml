@@ -1,4 +1,4 @@
-﻿<Window x:Class="Kabutar_WPF.Views.MainView"
+<Window x:Class="Kabutar_WPF.Views.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -11,13 +11,13 @@
         Background="{DynamicResource BackgroundBrush}">
     <Grid x:Name="RootGrid">
         <Grid.ColumnDefinitions>
-            
+
             <ColumnDefinition Width="350"/>
-            
+
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        
+
         <Border Grid.Column="0"
                 Background="{DynamicResource SurfaceBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
@@ -29,7 +29,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                
+
                 <Border Grid.Row="0"
                         Background="{DynamicResource PrimaryBrush}"
                         Padding="20,15">
@@ -39,7 +39,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        
+
                         <Button x:Name="HamburgerButton"
                                 Grid.Column="0"
                                 Width="40"
@@ -87,7 +87,7 @@
                     </Grid>
                 </Border>
 
-                
+
                 <Border Grid.Row="1"
                         Background="{DynamicResource SurfaceBrush}"
                         Padding="15,10">
@@ -120,7 +120,7 @@
                     </TextBox>
                 </Border>
 
-                
+
                 <ListBox Grid.Row="2"
                          ItemsSource="{Binding SearchResults}"
                          Background="Transparent"
@@ -128,7 +128,7 @@
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ListBox.Resources>
-                        
+
                         <DataTemplate x:Key="UserSearchResultTemplate">
                             <Button Background="Transparent"
                                     BorderThickness="0,0,0,1"
@@ -165,19 +165,19 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    
+
                                     <Grid Grid.Column="0"
                                           Grid.RowSpan="2"
                                           Width="50"
                                           Height="50"
                                           Margin="0,0,12,0">
-                                        
+
                                         <Border Width="50"
                                                 Height="50"
                                                 CornerRadius="25"
                                                 Background="{DynamicResource PrimaryBrush}"
                                                 Visibility="{Binding ProfilePicture, Converter={StaticResource NoImageToVisibilityConverter}}">
-                                            <TextBlock Text="{Binding Name, Converter={StaticResource InitialsConverter}}"
+                                            <TextBlock Text="{Binding FullName, Converter={StaticResource InitialsConverter}}"
                                                        Foreground="White"
                                                        FontSize="18"
                                                        FontWeight="Bold"
@@ -185,7 +185,7 @@
                                                        VerticalAlignment="Center" />
                                         </Border>
 
-                                        
+
                                         <Border Width="50"
                                                 Height="50"
                                                 CornerRadius="25"
@@ -196,7 +196,7 @@
                                             </Border.Background>
                                         </Border>
 
-                                        
+
                                         <Ellipse Width="14"
                                                  Height="14"
                                                  Fill="#4CAF50"
@@ -207,7 +207,7 @@
                                                  Visibility="{Binding IsOnline, Converter={StaticResource BoolToVisibilityConverter}}" />
                                     </Grid>
 
-                                    
+
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding FullName}"
                                                    FontSize="15"
@@ -222,7 +222,7 @@
                             </Button>
                         </DataTemplate>
 
-                        
+
                         <DataTemplate x:Key="MessageSearchResultTemplate">
                             <Button Background="Transparent"
                                     BorderThickness="0,0,0,1"
@@ -259,21 +259,19 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                   
-                                    
-                                    
+
                                     <Grid Grid.Column="0"
                                           Grid.RowSpan="2"
                                           Width="50"
                                           Height="50"
                                           Margin="0,0,12,0">
-                                        
+
                                         <Border Width="50"
                                                 Height="50"
                                                 CornerRadius="25"
                                                 Background="{DynamicResource PrimaryBrush}"
                                                 Visibility="{Binding ProfilePicture, Converter={StaticResource NoImageToVisibilityConverter}}">
-                                            <TextBlock Text="{Binding Name, Converter={StaticResource InitialsConverter}}"
+                                            <TextBlock Text="{Binding FullName, Converter={StaticResource InitialsConverter}}"
                                                        Foreground="White"
                                                        FontSize="18"
                                                        FontWeight="Bold"
@@ -281,7 +279,7 @@
                                                        VerticalAlignment="Center" />
                                         </Border>
 
-                                        
+
                                         <Border Width="50"
                                                 Height="50"
                                                 CornerRadius="25"
@@ -292,27 +290,18 @@
                                             </Border.Background>
                                         </Border>
 
-                                        
-                                        <Ellipse Width="14"
-                                                 Height="14"
-                                                 Fill="#4CAF50"
-                                                 Stroke="{DynamicResource SurfaceBrush}"
-                                                 StrokeThickness="2"
-                                                 HorizontalAlignment="Right"
-                                                 VerticalAlignment="Bottom"
-                                                 Visibility="{Binding IsOnline, Converter={StaticResource BoolToVisibilityConverter}}" />
                                     </Grid>
                                     <StackPanel Grid.Column="1"
                                                 VerticalAlignment="Center">
 
-                                        
-                                        <TextBlock 
+
+                                        <TextBlock
                                                    Text="{Binding FullName}"
                                                    FontSize="15"
                                                    FontWeight="SemiBold"
                                                    Foreground="{DynamicResource TextBrush}" />
 
-                                        
+
                                         <TextBlock
                                                    Text="{Binding MessageContent}"
                                                    FontSize="13"
@@ -332,7 +321,7 @@
                     </ListBox.ItemTemplateSelector>
                 </ListBox>
 
-                
+
                 <ListBox Grid.Row="2"
                          ItemsSource="{Binding Chats}"
                          SelectedItem="{Binding SelectedChat}"
@@ -346,12 +335,21 @@
                             <Setter Property="Padding" Value="0"/>
                             <Setter Property="Margin" Value="0"/>
                             <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="ListBoxItem">
                                         <Border Background="{TemplateBinding Background}"
                                                 BorderThickness="0,0,0,1"
-                                                BorderBrush="{DynamicResource BorderBrush}">
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                Tag="{TemplateBinding Tag}">
+                                            <Border.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="🗑 Chatni tozalash"
+                                                              Command="{Binding PlacementTarget.Tag.ClearChatCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                                </ContextMenu>
+                                            </Border.ContextMenu>
                                             <ContentPresenter/>
                                         </Border>
                                     </ControlTemplate>
@@ -382,15 +380,15 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                
+
                                 <Grid Grid.Column="0" Grid.RowSpan="2"
                                       Width="50" Height="50"
                                       Margin="0,0,12,0">
-                                    
+
                                     <Border Width="50" Height="50"
                                             CornerRadius="25"
                                             Background="{DynamicResource PrimaryBrush}"
-                                            Visibility="{Binding ProfilePicture, Converter={StaticResource NoImageToVisibilityConverter}}">
+                                            Visibility="{Binding ThumbnailOrProfile, Converter={StaticResource NoImageToVisibilityConverter}}">
                                         <TextBlock Text="{Binding Name, Converter={StaticResource InitialsConverter}}"
                                                    Foreground="White"
                                                    FontSize="18"
@@ -399,17 +397,17 @@
                                                    VerticalAlignment="Center"/>
                                     </Border>
 
-                                    
+
                                     <Border Width="50" Height="50"
                                             CornerRadius="25"
-                                            Visibility="{Binding ProfilePicture, Converter={StaticResource ImagePathToVisibilityConverter}}">
+                                            Visibility="{Binding ThumbnailOrProfile, Converter={StaticResource ImagePathToVisibilityConverter}}">
                                         <Border.Background>
-                                            <ImageBrush ImageSource="{Binding ProfilePicture, Converter={StaticResource ImagePathToUrlConverter}}"
+                                            <ImageBrush ImageSource="{Binding ThumbnailOrProfile, Converter={StaticResource ImagePathToUrlConverter}}"
                                                         Stretch="UniformToFill"/>
                                         </Border.Background>
                                     </Border>
 
-                                    
+
                                     <Ellipse Width="14" Height="14"
                                              Fill="#4CAF50"
                                              Stroke="{DynamicResource SurfaceBrush}"
@@ -419,7 +417,7 @@
                                              Visibility="{Binding IsOnline, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 </Grid>
 
-                                
+
                                 <TextBlock Grid.Column="1" Grid.Row="0"
                                            Text="{Binding Name}"
                                            FontSize="14"
@@ -427,7 +425,7 @@
                                            Foreground="{DynamicResource TextBrush}"
                                            TextTrimming="CharacterEllipsis"/>
 
-                                
+
                                 <TextBlock Grid.Column="1" Grid.Row="1"
                                            Text="{Binding LastMessage}"
                                            FontSize="12"
@@ -435,7 +433,7 @@
                                            TextTrimming="CharacterEllipsis"
                                            Margin="0,3,0,0"/>
 
-                                
+
                                 <StackPanel Grid.Column="2" Grid.Row="0"
                                             Orientation="Vertical"
                                             HorizontalAlignment="Right">
@@ -462,7 +460,7 @@
             </Grid>
         </Border>
 
-        
+
         <Grid Grid.Column="1" Background="{DynamicResource BackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -470,14 +468,14 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            
+
             <Border Grid.Row="0"
                     Background="{DynamicResource SurfaceBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="0,0,0,1"
                     Padding="20,15">
                 <Grid>
-                    
+
                     <Button Background="Transparent"
                             BorderThickness="0"
                             Cursor="Hand"
@@ -504,9 +502,9 @@
                             </Style>
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
-                            
+
                             <Grid Width="45" Height="45" Margin="0,0,12,0">
-                                
+
                                 <Border Width="45" Height="45"
                                         CornerRadius="22.5"
                                         Background="{DynamicResource PrimaryBrush}"
@@ -519,7 +517,7 @@
                                                VerticalAlignment="Center"/>
                                 </Border>
 
-                                
+
                                 <Border Width="45" Height="45"
                                         CornerRadius="22.5"
                                         Visibility="{Binding SelectedChat.ProfilePicture, Converter={StaticResource ImagePathToVisibilityConverter}}">
@@ -529,7 +527,7 @@
                                     </Border.Background>
                                 </Border>
 
-                                
+
                                 <Ellipse Width="12" Height="12"
                                          Fill="#4CAF50"
                                          Stroke="{DynamicResource SurfaceBrush}"
@@ -558,7 +556,38 @@
                         </StackPanel>
                     </Button>
 
-                    
+
+                    <Button HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Width="36" Height="36"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            ToolTip="Chatni tozalash"
+                            Command="{Binding ClearChatCommand}"
+                            CommandParameter="{Binding SelectedChat}"
+                            Visibility="{Binding SelectedChat, Converter={StaticResource NotNullToVisibilityConverter}}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="🗑" FontSize="16"/>
+                    </Button>
+
                     <TextBlock Text=""
                                FontSize="16"
                                Foreground="{DynamicResource SecondaryTextBrush}"
@@ -568,7 +597,7 @@
                 </Grid>
             </Border>
 
-            
+
             <Border x:Name="ChatBackgroundBorder"
                     Grid.Row="1"
                     Background="{DynamicResource BackgroundBrush}"
@@ -578,7 +607,7 @@
                               Background="Transparent">
                 <ItemsControl ItemsSource="{Binding Messages}">
                     <ItemsControl.Resources>
-                        
+
                         <DataTemplate x:Key="DateSeparatorTemplate">
                             <Grid Margin="0,15,0,10">
                                 <Border Background="{DynamicResource SurfaceBrush}"
@@ -593,32 +622,82 @@
                             </Grid>
                         </DataTemplate>
 
-                        
+
                         <DataTemplate x:Key="MessageTemplate">
-                            <Grid Margin="0,5">
+                            <Grid Margin="0,3">
                                 <Border Background="{Binding Message.IsFromMe, Converter={StaticResource MessageBackgroundConverter}}"
-                                        CornerRadius="10"
-                                        Padding="12,8"
-                                        MaxWidth="400"
-                                        HorizontalAlignment="{Binding Message.IsFromMe, Converter={StaticResource MessageAlignmentConverter}}">
+                                        CornerRadius="12"
+                                        Padding="{Binding Message.HasImage, Converter={StaticResource BoolToPaddingConverter}}"
+                                        MaxWidth="320"
+                                        ClipToBounds="True"
+                                        HorizontalAlignment="{Binding Message.IsFromMe, Converter={StaticResource MessageAlignmentConverter}}"
+                                        Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}">
+                                    <Border.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Faqat menda o'chirish"
+                                                      Command="{Binding PlacementTarget.Tag.DeleteMessageCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                      CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                            <MenuItem Header="Ikki tomonlama o'chirish"
+                                                      Command="{Binding PlacementTarget.Tag.DeleteMessageForBothCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                      CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+
                                     <StackPanel>
+
                                         <TextBlock Text="{Binding Message.Content}"
                                                    TextWrapping="Wrap"
                                                    Foreground="{Binding Message.IsFromMe, Converter={StaticResource MessageForegroundConverter}}"
-                                                   FontSize="{DynamicResource ChatFontSize}"/>
+                                                   FontSize="{DynamicResource ChatFontSize}"
+                                                   Visibility="{Binding Message.HasImage, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+
                                         <StackPanel Orientation="Horizontal"
                                                     HorizontalAlignment="Right"
-                                                    Margin="0,4,0,0">
+                                                    Margin="0,3,0,0"
+                                                    Visibility="{Binding Message.HasImage, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                             <TextBlock Text="{Binding Message.SentAt, StringFormat='{}{0:HH:mm}'}"
                                                        FontSize="11"
                                                        Foreground="{Binding Message.IsFromMe, Converter={StaticResource MessageTimeForegroundConverter}}"/>
-                                            
                                             <TextBlock Text="{Binding Message.IsRead, Converter={StaticResource ReadStatusConverter}}"
                                                        FontSize="11"
                                                        Foreground="{Binding Message.IsRead, Converter={StaticResource ReadStatusColorConverter}}"
                                                        Margin="4,0,0,0"
                                                        Visibility="{Binding Message.IsFromMe, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                         </StackPanel>
+
+
+                                        <Grid Visibility="{Binding Message.HasImage, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <Image Source="{Binding Message.AttachmentUrl, Converter={StaticResource ImagePathToUrlConverter}}"
+                                                   MaxHeight="280"
+                                                   MaxWidth="280"
+                                                   MinWidth="120"
+                                                   MinHeight="80"
+                                                   Stretch="Uniform"
+                                                   Cursor="Hand"
+                                                   Tag="{Binding Message.AttachmentUrl}"
+                                                   MouseLeftButtonUp="ChatImage_Click"
+                                                   RenderOptions.BitmapScalingMode="HighQuality"/>
+
+
+                                            <Border Background="#88000000"
+                                                    CornerRadius="6"
+                                                    Padding="5,2"
+                                                    HorizontalAlignment="Right"
+                                                    VerticalAlignment="Bottom"
+                                                    Margin="0,0,6,6">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Message.SentAt, StringFormat='{}{0:HH:mm}'}"
+                                                               FontSize="11"
+                                                               Foreground="White"/>
+                                                    <TextBlock Text="{Binding Message.IsRead, Converter={StaticResource ReadStatusConverter}}"
+                                                               FontSize="11"
+                                                               Foreground="White"
+                                                               Margin="3,0,0,0"
+                                                               Visibility="{Binding Message.IsFromMe, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
                                     </StackPanel>
                                 </Border>
                             </Grid>
@@ -634,7 +713,7 @@
                 </ScrollViewer>
             </Border>
 
-            
+
             <StackPanel Grid.Row="1"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
@@ -649,7 +728,7 @@
                            HorizontalAlignment="Center"/>
             </StackPanel>
 
-            
+
             <Border Grid.Row="2"
                     Background="{DynamicResource SurfaceBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
@@ -658,11 +737,44 @@
                     Visibility="{Binding SelectedChat, Converter={StaticResource NotNullToVisibilityConverter}}">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBox Grid.Column="0"
+                    <Button Grid.Column="0"
+                            x:Name="SendImageButton"
+                            Width="42" Height="42"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Margin="0,0,8,0"
+                            Click="SendImage_Click"
+                            ToolTip="Rasm yuborish">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="5">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="&#128444;" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+
+                    <TextBox Grid.Column="1"
                              Text="{Binding MessageText, UpdateSourceTrigger=PropertyChanged}"
                              Padding="12,10"
                              FontSize="14"
@@ -695,7 +807,7 @@
                         </TextBox.Style>
                     </TextBox>
 
-                    <Button Grid.Column="1"
+                    <Button Grid.Column="2"
                             Content="Yuborish"
                             Command="{Binding SendMessageCommand}"
                             Background="{DynamicResource PrimaryBrush}"
@@ -730,14 +842,22 @@
             </Border>
         </Grid>
 
-        
+
+        <Grid x:Name="RightPanelOverlay"
+              Grid.Column="1"
+              Background="{DynamicResource BackgroundBrush}"
+              Visibility="Collapsed"
+              Panel.ZIndex="5">
+            <ContentControl x:Name="RightPanelContent"/>
+        </Grid>
+
         <Grid x:Name="MenuOverlay"
               Grid.ColumnSpan="2"
               Background="#80000000"
               Visibility="Collapsed"
               MouseDown="MenuOverlay_MouseDown">
 
-            
+
             <Border x:Name="SideMenuPanel"
                     Width="280"
                     HorizontalAlignment="Left"
@@ -758,7 +878,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    
+
                     <Border Grid.Row="0"
                             Background="{DynamicResource PrimaryBrush}"
                             Padding="20,25,20,20">
@@ -768,12 +888,12 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            
+
                             <Grid Grid.Column="0"
                                   Width="60"
                                   Height="60"
                                   Margin="0,0,15,0">
-                                
+
                                 <Border Width="60" Height="60"
                                         CornerRadius="30"
                                         Background="White">
@@ -786,7 +906,7 @@
                                                VerticalAlignment="Center"/>
                                 </Border>
 
-                                
+
                                 <Border x:Name="MenuUserImageBorder"
                                         Width="60" Height="60"
                                         CornerRadius="30"
@@ -798,7 +918,7 @@
                                 </Border>
                             </Grid>
 
-                            
+
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock x:Name="MenuUserName"
                                            Text="Loading..."
@@ -814,9 +934,9 @@
                         </Grid>
                     </Border>
 
-                    
+
                     <StackPanel Grid.Row="1" Margin="0,10,0,0">
-                        
+
                         <Button Content="Profilni sozlash"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
@@ -847,7 +967,7 @@
                             </Button.Style>
                         </Button>
 
-                        
+
                         <Button Content="Mavzuni almashtirish"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
@@ -878,7 +998,7 @@
                             </Button.Style>
                         </Button>
 
-                        
+
                         <Button Content="Sozlamalar"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
@@ -909,9 +1029,40 @@
                             </Button.Style>
                         </Button>
 
+
+                        <Button Content="Muallif"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="20,15"
+                                Cursor="Hand"
+                                FontSize="15"
+                                Click="About_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
                         <Separator Margin="10,10" Background="{DynamicResource BorderBrush}"/>
 
-                        
+
                         <Button Content="Chiqish"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"

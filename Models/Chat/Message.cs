@@ -12,5 +12,7 @@ namespace Kabutar_WPF.Models.Chat
         public bool IsRead { get; set; }
         public bool IsSent { get; set; }
         public bool IsFromMe { get; set; }
+        public string? AttachmentUrl { get; set; }
+        public bool HasImage => !string.IsNullOrEmpty(AttachmentUrl);
     }
 }

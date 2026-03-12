@@ -113,7 +113,7 @@ namespace Kabutar_WPF.Converters
             if (lastActive.HasValue)
                 return FormatLastSeen(lastActive.Value);
 
-            return "Offline";
+            return "so'nggi faollik noma'lum";
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -137,5 +137,34 @@ namespace Kabutar_WPF.Converters
 
             return lastActive.ToString("d-MMMM");
         }
+    }
+
+
+    public class BoolToPaddingConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool hasImage && hasImage)
+                return new Thickness(0);
+            return new Thickness(10, 8, 10, 8);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+    public class ImageBubbleBackgroundConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+
+
+            throw new NotImplementedException();
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
     }
 }

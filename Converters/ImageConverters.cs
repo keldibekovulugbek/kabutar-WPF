@@ -18,6 +18,10 @@ namespace Kabutar_WPF.Converters
                 if (imagePath.StartsWith("http://") || imagePath.StartsWith("https://"))
                     return imagePath;
 
+
+                if (imagePath.Length >= 2 && imagePath[1] == ':')
+                    return imagePath;
+
                 return $"{BaseUrl}{imagePath.TrimStart('/')}";
             }
             return null!;

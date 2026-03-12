@@ -37,6 +37,7 @@ namespace Kabutar_WPF.Services
                     Id = dto.UserId,
                     Name = $"{dto.FirstName} {dto.LastName}".Trim(),
                     ProfilePicture = dto.ProfilePicture,
+                    ProfilePictureThumbnail = dto.ProfilePictureThumbnail,
                     LastMessage = dto.LastMessage,
                     LastMessageTime = dto.Timestamp.ToLocalTime(),
                     UnreadCount = dto.UnreadCount,
@@ -59,6 +60,7 @@ namespace Kabutar_WPF.Services
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string? ProfilePicture { get; set; }
+        public string? ProfilePictureThumbnail { get; set; }
         public string LastMessage { get; set; } = string.Empty;
         public DateTime Timestamp { get; set; }
         public int UnreadCount { get; set; }

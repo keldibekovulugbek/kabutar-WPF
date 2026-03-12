@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -352,6 +353,73 @@ namespace Kabutar_WPF.Services
             {
                 Console.WriteLine($"[API] Unexpected error: {ex.Message}");
                 throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
+            }
+        }
+
+        public async Task<bool> DeleteAsync(string endpoint)
+        {
+            try
+            {
+                var relativeEndpoint = endpoint.TrimStart('/');
+                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
+                Console.WriteLine($"[API] Sending DELETE to: {fullUrl}");
+
+                var response = await _httpClient.DeleteAsync(relativeEndpoint);
+
+                Console.WriteLine($"[API] Response status: {response.StatusCode}");
+
+                if (response.IsSuccessStatusCode)
+                    return true;
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[API] Error response: {errorContent}");
+
+                var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
+                throw new Exception(errorMessage);
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("Server bilan"))
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
+            }
+        }
+
+        public async Task<bool> PostMultipartAsync(string endpoint, Dictionary<string, string> fields, string? filePath = null, string fileFieldName = "attachment")
+        {
+            try
+            {
+                using var form = new MultipartFormDataContent();
+
+                foreach (var field in fields)
+                    form.Add(new StringContent(field.Value), field.Key);
+
+                if (filePath != null && System.IO.File.Exists(filePath))
+                {
+                    var fileBytes = System.IO.File.ReadAllBytes(filePath);
+                    var fileContent = new ByteArrayContent(fileBytes);
+                    fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+                    form.Add(fileContent, fileFieldName, System.IO.Path.GetFileName(filePath));
+                }
+
+                var relativeEndpoint = endpoint.TrimStart('/');
+                var response = await _httpClient.PostAsync(relativeEndpoint, form);
+
+                if (response.IsSuccessStatusCode) return true;
+
+                var errorContent = await response.Content.ReadAsStringAsync();
+                var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
+                throw new Exception(errorMessage);
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception("Server bilan bog'lanishda xatolik.", ex);
             }
         }
 

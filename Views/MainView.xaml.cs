@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
@@ -12,6 +14,7 @@ namespace Kabutar_WPF.Views
     public partial class MainView : Window
     {
         private bool _isMenuOpen = false;
+        private readonly SignalRService _signalRService = new SignalRService();
 
         public MainView()
         {
@@ -25,13 +28,103 @@ namespace Kabutar_WPF.Views
             var messageService = new MessageService(apiClient);
             var chatService = new ChatService(apiClient);
 
-            DataContext = new MainViewModel(authService, searchService, messageService, chatService);
+            var vm = new MainViewModel(authService, searchService, messageService, chatService);
+            vm.ShowClearChatDialogFunc = chat =>
+            {
+                var dialog = new ClearChatDialog(chat, this);
+                dialog.ShowDialog();
+                return (dialog.Confirmed, dialog.DeleteForBoth);
+            };
+            DataContext = vm;
 
             Loaded += async (s, e) =>
             {
                 await LoadCurrentUserInfoAsync();
                 await LoadUserSettingsAsync();
+                await ConnectSignalRAsync();
             };
+
+            Closing += async (s, e) =>
+            {
+                await _signalRService.DisconnectAsync();
+            };
+        }
+
+        private async System.Threading.Tasks.Task ConnectSignalRAsync()
+        {
+            try
+            {
+                var apiClient = ApiClient.Instance;
+                var authService = new AuthService(apiClient);
+                var token = authService.GetToken();
+
+                if (!string.IsNullOrEmpty(token))
+                {
+                    _signalRService.UserConnected += OnUserConnected;
+                    _signalRService.UserDisconnected += OnUserDisconnected;
+                    _signalRService.MessageReceived += OnMessageReceived;
+                    await _signalRService.ConnectAsync(token);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SignalR connect error: {ex.Message}");
+            }
+        }
+
+        private void OnMessageReceived(IncomingMessage msg)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (DataContext is MainViewModel vm)
+                {
+                    vm.ReceiveIncomingMessage(msg.SenderId, msg.Content, msg.SentAt, msg.AttachmentUrl);
+                }
+            });
+        }
+
+        private void OnUserConnected(long userId)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (DataContext is MainViewModel vm)
+                {
+                    var chat = vm.Chats.FirstOrDefault(c => c.Id == userId);
+                    if (chat != null)
+                    {
+                        chat.IsOnline = true;
+                        chat.LastActive = null;
+                    }
+                    if (vm.SelectedChat?.Id == userId)
+                    {
+                        vm.SelectedChat.IsOnline = true;
+                        vm.SelectedChat.LastActive = null;
+                        vm.NotifySelectedChatChanged();
+                    }
+                }
+            });
+        }
+
+        private void OnUserDisconnected(long userId)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (DataContext is MainViewModel vm)
+                {
+                    var chat = vm.Chats.FirstOrDefault(c => c.Id == userId);
+                    if (chat != null)
+                    {
+                        chat.IsOnline = false;
+                        chat.LastActive = DateTime.Now;
+                    }
+                    if (vm.SelectedChat?.Id == userId)
+                    {
+                        vm.SelectedChat.IsOnline = false;
+                        vm.SelectedChat.LastActive = DateTime.Now;
+                        vm.NotifySelectedChatChanged();
+                    }
+                }
+            });
         }
 
         private async System.Threading.Tasks.Task LoadCurrentUserInfoAsync()
@@ -124,13 +217,20 @@ namespace Kabutar_WPF.Views
 
                 if (settings != null)
                 {
-                    ApplyTheme(settings.Theme);
+                    ApplyThemeGlobal(settings.Theme);
 
                     ApplyFontSize(settings.FontSize);
 
                     if (!string.IsNullOrEmpty(settings.ChatBackgroundImage))
                     {
                         await ApplyChatBackgroundAsync(settings.ChatBackgroundImage);
+                    }
+                    else
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            ChatBackgroundBorder.Background = null;
+                        });
                     }
                 }
             }
@@ -140,7 +240,7 @@ namespace Kabutar_WPF.Views
             }
         }
 
-        private void ApplyTheme(string theme)
+        public static void ApplyThemeGlobal(string theme)
         {
             try
             {
@@ -163,8 +263,8 @@ namespace Kabutar_WPF.Views
                     mergedDicts.Remove(themeToRemove);
 
                 var themeUri = theme == "dark"
-                    ? new Uri("Resources/Themes/DarkTheme.xaml", UriKind.Relative)
-                    : new Uri("Resources/Themes/LightTheme.xaml", UriKind.Relative);
+                    ? new Uri("pack://application:,,,/Resources/Themes/DarkTheme.xaml")
+                    : new Uri("pack://application:,,,/Resources/Themes/LightTheme.xaml");
 
                 mergedDicts.Add(new ResourceDictionary { Source = themeUri });
             }
@@ -300,12 +400,9 @@ namespace Kabutar_WPF.Views
             var authService = new AuthService(apiClient);
             var userService = new UserService(apiClient);
 
-            var profileWindow = new ProfileSettingsView(userService, authService)
-            {
-                Owner = this
-            };
-
-            profileWindow.ShowDialog();
+            var profilePanel = new ProfileSettingsView(userService, authService);
+            profilePanel.CloseRequested += HideRightPanel;
+            ShowRightPanel(profilePanel);
         }
 
         private void ChangeTheme_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -315,23 +412,47 @@ namespace Kabutar_WPF.Views
             var apiClient = ApiClient.Instance;
             var userService = new UserService(apiClient);
 
-            var themeWindow = new ThemeSettingsView(userService)
+            var themePanel = new ThemeSettingsView(userService)
             {
-                Owner = this
+                ParentMainView = this
             };
+            themePanel.CloseRequested += HideRightPanel;
+            ShowRightPanel(themePanel);
+        }
 
-            themeWindow.ShowDialog();
+        private void ShowRightPanel(System.Windows.Controls.UserControl content)
+        {
+            RightPanelContent.Content = content;
+            RightPanelOverlay.Visibility = Visibility.Visible;
+        }
+
+        private void HideRightPanel()
+        {
+            RightPanelOverlay.Visibility = Visibility.Collapsed;
+            RightPanelContent.Content = null;
         }
 
         private void Settings_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             CloseMenu();
-            NotificationService.Show("Sozlamalar sahifasi hali ishlab chiqilmagan", NotificationType.Info);
+            var settingsPanel = new SettingsView();
+            settingsPanel.CloseRequested += HideRightPanel;
+            ShowRightPanel(settingsPanel);
         }
 
-        private void Logout_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void About_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             CloseMenu();
+            var aboutPanel = new AboutView();
+            aboutPanel.CloseRequested += HideRightPanel;
+            ShowRightPanel(aboutPanel);
+        }
+
+        private async void Logout_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            CloseMenu();
+
+            await _signalRService.DisconnectAsync();
 
             var apiClient = ApiClient.Instance;
             var authService = new AuthService(apiClient);
@@ -341,6 +462,96 @@ namespace Kabutar_WPF.Views
             loginView.Show();
 
             Close();
+        }
+
+        private static string FixExifRotation(string filePath)
+        {
+            try
+            {
+                using var stream = System.IO.File.OpenRead(filePath);
+                var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                var frame = decoder.Frames[0];
+
+                int orientation = 1;
+                if (frame.Metadata is BitmapMetadata meta && meta.ContainsQuery("/app1/ifd/{ushort=274}"))
+                    orientation = (int)(ushort)meta.GetQuery("/app1/ifd/{ushort=274}");
+
+                double angle = orientation switch
+                {
+                    3 => 180,
+                    6 => 90,
+                    8 => -90,
+                    _ => 0
+                };
+
+                if (angle == 0) return filePath;
+
+                BitmapSource rotated = new TransformedBitmap(frame, new RotateTransform(angle));
+
+                var encoder = new JpegBitmapEncoder { QualityLevel = 90 };
+                encoder.Frames.Add(BitmapFrame.Create(rotated));
+
+                var tempPath = System.IO.Path.Combine(
+                    System.IO.Path.GetTempPath(),
+                    $"kabutar_img_{Guid.NewGuid()}.jpg");
+
+                using var outStream = System.IO.File.OpenWrite(tempPath);
+                encoder.Save(outStream);
+                return tempPath;
+            }
+            catch
+            {
+                return filePath;
+            }
+        }
+
+        private async void SendImage_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Rasm tanlang",
+                Filter = "Rasm fayllari (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png",
+                FilterIndex = 1
+            };
+
+            if (openFileDialog.ShowDialog() != true) return;
+
+            var viewModel = DataContext as MainViewModel;
+            if (viewModel?.SelectedChat == null) return;
+
+            try
+            {
+                var fixedPath = FixExifRotation(openFileDialog.FileName);
+                var messageService = new MessageService(ApiClient.Instance);
+                var success = await messageService.SendImageAsync(viewModel.SelectedChat.Id, fixedPath);
+
+                if (success)
+                {
+                    var now = DateTime.Now;
+                    var newMessage = new Models.Chat.Message
+                    {
+                        Id = now.Ticks,
+                        ChatId = viewModel.SelectedChat.Id,
+                        Content = "📷 Rasm",
+                        AttachmentUrl = fixedPath,
+                        SentAt = now,
+                        IsFromMe = true,
+                        IsSent = true
+                    };
+                    viewModel.Messages.Add(new Models.Chat.MessageItem { Message = newMessage });
+
+                    viewModel.SelectedChat.LastMessage = "📷 Rasm";
+                    viewModel.SelectedChat.LastMessageTime = now;
+                    var index = viewModel.Chats.IndexOf(viewModel.SelectedChat);
+                    if (index > 0) viewModel.Chats.Move(index, 0);
+
+                    NotificationService.Show("Rasm yuborildi", NotificationType.Success);
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Show($"Rasm yuborishda xatolik: {ex.Message}", NotificationType.Error);
+            }
         }
 
         private async void ChatUserInfo_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -358,17 +569,31 @@ namespace Kabutar_WPF.Views
 
                 if (userProfile != null)
                 {
-                    var userCard = new UserCardView(userProfile, viewModel.SelectedChat.IsOnline)
-                    {
-                        Owner = this
-                    };
-
-                    userCard.ShowDialog();
+                    var lastActive = userProfile.LastActive?.ToLocalTime() ?? viewModel.SelectedChat.LastActive;
+                    var isOnline = viewModel.SelectedChat.IsOnline;
+                    var userCard = new UserCardView(userProfile, isOnline, lastActive);
+                    userCard.CloseRequested += HideRightPanel;
+                    ShowRightPanel(userCard);
                 }
             }
             catch (Exception ex)
             {
                 NotificationService.Show($"Foydalanuvchi ma'lumotlarini olishda xatolik: {ex.Message}", NotificationType.Error);
+            }
+        }
+
+
+        private void ChatImage_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Image img && img.Tag is string attachmentUrl && !string.IsNullOrEmpty(attachmentUrl))
+            {
+                var fullUrl = attachmentUrl;
+                if (!fullUrl.StartsWith("http://") && !fullUrl.StartsWith("https://") && !(fullUrl.Length >= 2 && fullUrl[1] == ':'))
+                    fullUrl = $"http://localhost:5237/{attachmentUrl.TrimStart('/')}";
+
+                var viewer = new ImageViewerWindow(fullUrl);
+                viewer.Owner = this;
+                viewer.ShowDialog();
             }
         }
     }

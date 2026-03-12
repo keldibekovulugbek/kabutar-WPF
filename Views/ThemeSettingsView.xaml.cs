@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -10,14 +11,17 @@ using Kabutar_WPF.Helpers;
 
 namespace Kabutar_WPF.Views
 {
-    public partial class ThemeSettingsView : Window
+    public partial class ThemeSettingsView : UserControl
     {
         private readonly IUserService _userService;
+        public MainView? ParentMainView { get; set; }
         private string _selectedTheme = "light";
         private string _selectedFontSize = "medium";
         private string? _selectedBackgroundPath;
         private string? _currentBackgroundUrl;
         private bool _clearBackground = false;
+
+        public event Action? CloseRequested;
 
         public ThemeSettingsView(IUserService userService)
         {
@@ -207,20 +211,19 @@ namespace Kabutar_WPF.Views
 
                 await _userService.UpdateSettingsAsync(updateRequest);
 
-                ApplyTheme(_selectedTheme);
+                MainView.ApplyThemeGlobal(_selectedTheme);
 
                 ApplyFontSize(_selectedFontSize);
 
-                if (Owner is MainView mainView)
+                if (ParentMainView != null)
                 {
-                    await mainView.RefreshSettingsAsync();
+                    await ParentMainView.RefreshSettingsAsync();
                 }
 
                 NotificationService.Show("Sozlamalar saqlandi!", NotificationType.Success);
 
                 await System.Threading.Tasks.Task.Delay(1000);
-                DialogResult = true;
-                Close();
+                CloseRequested?.Invoke();
             }
             catch (Exception ex)
             {
@@ -230,33 +233,6 @@ namespace Kabutar_WPF.Views
                 if (saveButton != null)
                     saveButton.IsEnabled = true;
             }
-        }
-
-        private void ApplyTheme(string theme)
-        {
-            var app = Application.Current;
-            var mergedDicts = app.Resources.MergedDictionaries;
-
-            ResourceDictionary? themeToRemove = null;
-            foreach (var dict in mergedDicts)
-            {
-                if (dict.Source != null &&
-                    (dict.Source.OriginalString.Contains("LightTheme") ||
-                     dict.Source.OriginalString.Contains("DarkTheme")))
-                {
-                    themeToRemove = dict;
-                    break;
-                }
-            }
-
-            if (themeToRemove != null)
-                mergedDicts.Remove(themeToRemove);
-
-            var themeUri = theme == "dark"
-                ? new Uri("Resources/Themes/DarkTheme.xaml", UriKind.Relative)
-                : new Uri("Resources/Themes/LightTheme.xaml", UriKind.Relative);
-
-            mergedDicts.Add(new ResourceDictionary { Source = themeUri });
         }
 
         private void ApplyFontSize(string fontSize)
@@ -271,10 +247,14 @@ namespace Kabutar_WPF.Views
             Application.Current.Resources["ChatFontSize"] = fontSizeValue;
         }
 
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            CloseRequested?.Invoke();
+        }
+
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = false;
-            Close();
+            CloseRequested?.Invoke();
         }
     }
 }

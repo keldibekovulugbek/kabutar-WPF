@@ -1,0 +1,237 @@
+<Window x:Class="Kabutar_WPF.Views.ImageViewerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Rasm"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="#DD000000"
+        WindowState="Maximized"
+        KeyDown="Window_KeyDown"
+        MouseWheel="Window_MouseWheel">
+
+    <Grid x:Name="RootGrid">
+
+        <Rectangle Fill="Transparent" MouseLeftButtonDown="Background_Click"/>
+
+
+        <ScrollViewer x:Name="ImageScroll"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto"
+                      Margin="0,60,0,70"
+                      Background="Transparent"
+                      MouseLeftButtonDown="ImageScroll_MouseDown"
+                      PreviewMouseWheel="ImageScroll_PreviewMouseWheel">
+            <Grid>
+                <Image x:Name="MainImage"
+                       Stretch="Uniform"
+                       RenderTransformOrigin="0.5,0.5"
+                       MouseLeftButtonDown="Image_MouseDown">
+                    <Image.RenderTransform>
+                        <ScaleTransform x:Name="ImageScale" ScaleX="1" ScaleY="1"/>
+                    </Image.RenderTransform>
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Setter Property="Cursor" Value="Arrow"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsZoomed, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                    <Setter Property="Cursor" Value="SizeAll"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+            </Grid>
+        </ScrollViewer>
+
+
+        <StackPanel x:Name="LoadingPanel"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Margin="0,60,0,70">
+            <TextBlock Text="⏳"
+                       FontSize="36"
+                       HorizontalAlignment="Center"
+                       Foreground="White"
+                       Margin="0,0,0,8"/>
+            <TextBlock Text="Yuklanmoqda..."
+                       Foreground="#CCFFFFFF"
+                       FontSize="14"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+
+
+        <StackPanel x:Name="ErrorPanel"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Visibility="Collapsed"
+                    Margin="0,60,0,70">
+            <TextBlock Text="⚠️"
+                       FontSize="36"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,8"/>
+            <TextBlock x:Name="ErrorText"
+                       Foreground="#FFCC6666"
+                       FontSize="14"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"/>
+        </StackPanel>
+
+
+        <Border VerticalAlignment="Top" Height="60">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#CC000000" Offset="0"/>
+                    <GradientStop Color="#00000000" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid Margin="16,8">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="TitleText"
+                               Text="Rasm"
+                               Foreground="White"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock x:Name="SubtitleText"
+                               Foreground="#99FFFFFF"
+                               FontSize="12"
+                               VerticalAlignment="Center"
+                               Margin="10,0,0,0"/>
+                </StackPanel>
+
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+
+                    <Button x:Name="ResetZoomBtn"
+                            Content="1:1"
+                            Click="ResetZoom_Click"
+                            Width="40" Height="36"
+                            Margin="0,0,8,0"
+                            ToolTip="Zoom tiklash"
+                            Foreground="White"
+                            FontSize="11"
+                            FontWeight="Bold"
+                            Background="#33FFFFFF"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#55FFFFFF"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="✕"
+                            Click="Close_Click"
+                            Width="36" Height="36"
+                            Foreground="White"
+                            FontSize="16"
+                            Background="#33FFFFFF"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="18">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#55FFFFFF"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+
+        <Border VerticalAlignment="Bottom" Height="70">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#00000000" Offset="0"/>
+                    <GradientStop Color="#CC000000" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <Button x:Name="SaveButton"
+                        Click="Save_Click"
+                        Height="40"
+                        Padding="24,0"
+                        Background="#2196F3"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        FontSize="13"
+                        FontWeight="SemiBold">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                                CornerRadius="20"
+                                                Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#1976D2"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Background" Value="#555555"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="SaveIcon" Text="💾" FontSize="14" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock x:Name="SaveLabel" Text="Saqlash" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
+
+
+        <Border x:Name="ZoomIndicator"
+                Background="#88000000"
+                CornerRadius="8"
+                Padding="12,6"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Margin="0,60,0,70"
+                Opacity="0"
+                IsHitTestVisible="False">
+            <TextBlock x:Name="ZoomText"
+                       Text="100%"
+                       Foreground="White"
+                       FontSize="16"
+                       FontWeight="SemiBold"/>
+        </Border>
+    </Grid>
+</Window>

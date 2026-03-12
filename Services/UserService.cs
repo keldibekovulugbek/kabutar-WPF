@@ -10,7 +10,7 @@ namespace Kabutar_WPF.Services
     {
         Task<UserProfileDTO?> GetCurrentUserAsync();
         Task<bool> UpdateProfileAsync(UserUpdateRequest request);
-        Task<bool> UploadProfileImageAsync(string imagePath);
+        Task<bool> UploadProfileImageAsync(string imagePath, string? thumbnailPath = null);
         Task<UserSettingsDTO?> GetSettingsAsync();
         Task<UserSettingsDTO?> UpdateSettingsAsync(UserSettingsUpdateRequest request);
         Task<bool> UploadChatBackgroundAsync(string imagePath);
@@ -54,19 +54,27 @@ namespace Kabutar_WPF.Services
             }
         }
 
-        public async Task<bool> UploadProfileImageAsync(string imagePath)
+        public async Task<bool> UploadProfileImageAsync(string imagePath, string? thumbnailPath = null)
         {
             try
             {
                 if (!File.Exists(imagePath))
                     throw new FileNotFoundException("Image file not found", imagePath);
 
-                using var fileStream = File.OpenRead(imagePath);
                 using var content = new MultipartFormDataContent();
-                using var fileContent = new StreamContent(fileStream);
 
+                var fileStream = File.OpenRead(imagePath);
+                var fileContent = new StreamContent(fileStream);
                 fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
                 content.Add(fileContent, "Image", Path.GetFileName(imagePath));
+
+                if (!string.IsNullOrEmpty(thumbnailPath) && File.Exists(thumbnailPath))
+                {
+                    var thumbStream = File.OpenRead(thumbnailPath);
+                    var thumbContent = new StreamContent(thumbStream);
+                    thumbContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+                    content.Add(thumbContent, "Thumbnail", Path.GetFileName(thumbnailPath));
+                }
 
                 var response = await _apiClient.PostFormDataAsync("users/image", content);
                 return response;
