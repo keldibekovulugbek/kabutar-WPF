@@ -12,17 +12,18 @@ namespace Kabutar_WPF.Converters
         {
             if (value is bool isFromMe)
             {
+                var key = isFromMe ? "SentMessageBrush" : "ReceivedMessageBrush";
+                if (System.Windows.Application.Current.Resources.Contains(key))
+                    return System.Windows.Application.Current.Resources[key];
                 return isFromMe
-                    ? new SolidColorBrush(Color.FromRgb(0, 123, 255))
+                    ? new SolidColorBrush(Color.FromRgb(139, 92, 246))
                     : new SolidColorBrush(Color.FromRgb(240, 242, 245));
             }
             return new SolidColorBrush(Color.FromRgb(240, 242, 245));
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotImplementedException();
-        }
     }
 
     public class MessageForegroundConverter : IValueConverter
@@ -31,6 +32,9 @@ namespace Kabutar_WPF.Converters
         {
             if (value is bool isFromMe)
             {
+                var key = isFromMe ? "SentMessageTextBrush" : "ReceivedMessageTextBrush";
+                if (System.Windows.Application.Current.Resources.Contains(key))
+                    return System.Windows.Application.Current.Resources[key];
                 return isFromMe
                     ? new SolidColorBrush(Colors.White)
                     : new SolidColorBrush(Color.FromRgb(33, 37, 41));
@@ -38,10 +42,8 @@ namespace Kabutar_WPF.Converters
             return new SolidColorBrush(Color.FromRgb(33, 37, 41));
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotImplementedException();
-        }
     }
 
     public class MessageTimeForegroundConverter : IValueConverter
@@ -50,6 +52,9 @@ namespace Kabutar_WPF.Converters
         {
             if (value is bool isFromMe)
             {
+                var key = isFromMe ? "SentMessageTimeBrush" : "ReceivedMessageTimeBrush";
+                if (System.Windows.Application.Current.Resources.Contains(key))
+                    return System.Windows.Application.Current.Resources[key];
                 return isFromMe
                     ? new SolidColorBrush(Color.FromRgb(230, 240, 255))
                     : new SolidColorBrush(Color.FromRgb(108, 117, 125));
@@ -57,10 +62,8 @@ namespace Kabutar_WPF.Converters
             return new SolidColorBrush(Color.FromRgb(108, 117, 125));
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotImplementedException();
-        }
     }
 
     public class MessageAlignmentConverter : IValueConverter

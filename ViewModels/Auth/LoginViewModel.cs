@@ -1,26 +1,27 @@
 using System;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using Kabutar_WPF.Core;
 using Kabutar_WPF.Models.Auth;
 using Kabutar_WPF.Services;
-using Kabutar_WPF.Views.Auth;
 
 namespace Kabutar_WPF.ViewModels.Auth
 {
     public class LoginViewModel : ObservableObject
     {
         private readonly IAuthService _authService;
+        private readonly IWindowNavigationService _navigation;
         private string _username = string.Empty;
         private string _password = string.Empty;
         private string _errorMessage = string.Empty;
         private bool _isLoading;
 
-        public LoginViewModel()
+        public event Action? RequestClose;
+
+        public LoginViewModel(IAuthService authService, IWindowNavigationService navigation)
         {
-            var apiClient = ApiClient.Instance;
-            _authService = new AuthService(apiClient);
+            _authService = authService;
+            _navigation = navigation;
 
             LoginCommand = new RelayCommand(async _ => await LoginAsync(), _ => CanLogin());
             NavigateToRegisterCommand = new RelayCommand(_ => NavigateToRegister());
@@ -45,9 +46,7 @@ namespace Kabutar_WPF.ViewModels.Auth
             set
             {
                 if (SetProperty(ref _errorMessage, value))
-                {
                     OnPropertyChanged(nameof(HasError));
-                }
             }
         }
 
@@ -63,12 +62,10 @@ namespace Kabutar_WPF.ViewModels.Auth
         public ICommand NavigateToRegisterCommand { get; }
         public ICommand NavigateToForgotPasswordCommand { get; }
 
-        private bool CanLogin()
-        {
-            return !string.IsNullOrWhiteSpace(Username) &&
-                   !string.IsNullOrWhiteSpace(Password) &&
-                   !IsLoading;
-        }
+        private bool CanLogin() =>
+            !string.IsNullOrWhiteSpace(Username) &&
+            !string.IsNullOrWhiteSpace(Password) &&
+            !IsLoading;
 
         private async Task LoginAsync()
         {
@@ -87,22 +84,8 @@ namespace Kabutar_WPF.ViewModels.Auth
 
                 if (response != null && !string.IsNullOrEmpty(response.Token))
                 {
-                    // Login successful - navigate to main view
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        var mainView = new Views.MainView();
-                        mainView.Show();
-
-                        // Close current login window
-                        foreach (Window window in Application.Current.Windows)
-                        {
-                            if (window.DataContext == this)
-                            {
-                                window.Close();
-                                break;
-                            }
-                        }
-                    });
+                    _navigation.ShowMainView();
+                    RequestClose?.Invoke();
                 }
                 else
                 {
@@ -121,40 +104,14 @@ namespace Kabutar_WPF.ViewModels.Auth
 
         private void NavigateToRegister()
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var registerView = new RegisterView();
-                registerView.Show();
-
-                // Close current window
-                foreach (Window window in Application.Current.Windows)
-                {
-                    if (window.DataContext == this)
-                    {
-                        window.Close();
-                        break;
-                    }
-                }
-            });
+            _navigation.ShowRegisterView();
+            RequestClose?.Invoke();
         }
 
         private void NavigateToForgotPassword()
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var forgotPasswordView = new ForgotPasswordView();
-                forgotPasswordView.Show();
-
-                // Close current window
-                foreach (Window window in Application.Current.Windows)
-                {
-                    if (window.DataContext == this)
-                    {
-                        window.Close();
-                        break;
-                    }
-                }
-            });
+            _navigation.ShowForgotPasswordView();
+            RequestClose?.Invoke();
         }
     }
 }

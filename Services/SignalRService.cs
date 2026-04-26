@@ -20,6 +20,9 @@ namespace Kabutar_WPF.Services
         public event Action<long>? UserConnected;
         public event Action<long>? UserDisconnected;
         public event Action<IncomingMessage>? MessageReceived;
+        public event Action<long>? TypingStarted;
+        public event Action<long>? TypingStopped;
+        public event Action<long>? MessageRead;
 
         public bool IsConnected => _connection?.State == HubConnectionState.Connected;
 
@@ -36,20 +39,12 @@ namespace Kabutar_WPF.Services
                 .WithAutomaticReconnect()
                 .Build();
 
-            _connection.On<long>("UserConnected", userId =>
-            {
-                UserConnected?.Invoke(userId);
-            });
-
-            _connection.On<long>("UserDisconnected", userId =>
-            {
-                UserDisconnected?.Invoke(userId);
-            });
-
-            _connection.On<IncomingMessage>("ReceiveMessage", msg =>
-            {
-                MessageReceived?.Invoke(msg);
-            });
+            _connection.On<long>("UserConnected", userId => UserConnected?.Invoke(userId));
+            _connection.On<long>("UserDisconnected", userId => UserDisconnected?.Invoke(userId));
+            _connection.On<IncomingMessage>("ReceiveMessage", msg => MessageReceived?.Invoke(msg));
+            _connection.On<long>("TypingStarted", senderId => TypingStarted?.Invoke(senderId));
+            _connection.On<long>("TypingStopped", senderId => TypingStopped?.Invoke(senderId));
+            _connection.On<long>("MessageRead", messageId => MessageRead?.Invoke(messageId));
 
             try
             {
@@ -59,6 +54,24 @@ namespace Kabutar_WPF.Services
             {
                 System.Diagnostics.Debug.WriteLine("SignalR connection failed: " + ex.Message);
             }
+        }
+
+        public async Task SendTypingAsync(long receiverId)
+        {
+            if (!IsConnected) return;
+            try { await _connection!.InvokeAsync("StartTyping", receiverId); } catch { }
+        }
+
+        public async Task StopTypingAsync(long receiverId)
+        {
+            if (!IsConnected) return;
+            try { await _connection!.InvokeAsync("StopTyping", receiverId); } catch { }
+        }
+
+        public async Task MarkMessageReadAsync(long messageId, long senderId)
+        {
+            if (!IsConnected) return;
+            try { await _connection!.InvokeAsync("MarkMessageRead", messageId, senderId); } catch { }
         }
 
         public async Task DisconnectAsync()

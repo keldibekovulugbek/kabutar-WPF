@@ -1,6 +1,9 @@
 <UserControl x:Class="Kabutar_WPF.Views.ThemeSettingsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    </UserControl.Resources>
     <Grid x:Name="RootGrid" Background="{DynamicResource BackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -19,7 +22,7 @@
                            Foreground="White"
                            VerticalAlignment="Center"/>
                 <Button Content="&#x2715;"
-                        Click="Close_Click"
+                        Command="{Binding CloseCommand}"
                         HorizontalAlignment="Right"
                         Width="30" Height="30"
                         Background="#33FFFFFF"
@@ -52,7 +55,6 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="30,20">
 
-
                 <TextBlock Text="Mavzu rejimi"
                            FontSize="16"
                            FontWeight="SemiBold"
@@ -61,14 +63,24 @@
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,25">
 
-                    <Border x:Name="LightThemeButton"
-                            Width="130" Height="100"
+                    <Border Width="130" Height="100"
                             BorderThickness="3"
-                            BorderBrush="{DynamicResource BorderBrush}"
                             CornerRadius="10"
                             Cursor="Hand"
-                            Margin="0,0,15,0"
-                            MouseDown="LightTheme_Click">
+                            Margin="0,0,15,0">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding SelectLightThemeCommand}"/>
+                        </Border.InputBindings>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLightTheme}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                 <GradientStop Color="#FFFFFF" Offset="0"/>
@@ -89,13 +101,23 @@
                     </Border>
 
 
-                    <Border x:Name="DarkThemeButton"
-                            Width="130" Height="100"
+                    <Border Width="130" Height="100"
                             BorderThickness="3"
-                            BorderBrush="{DynamicResource BorderBrush}"
                             CornerRadius="10"
-                            Cursor="Hand"
-                            MouseDown="DarkTheme_Click">
+                            Cursor="Hand">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding SelectDarkThemeCommand}"/>
+                        </Border.InputBindings>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                 <GradientStop Color="#2D2D2D" Offset="0"/>
@@ -131,7 +153,6 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-
                     <Border Grid.Column="0"
                             Width="150" Height="100"
                             CornerRadius="10"
@@ -140,9 +161,18 @@
                             Margin="0,0,20,0">
                         <Grid>
 
-                            <Border x:Name="DefaultBackgroundBorder"
-                                    CornerRadius="10"
+                            <Border CornerRadius="10"
                                     Background="{DynamicResource BackgroundBrush}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasCustomBackground}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
                                 <TextBlock Text="Standart"
                                            FontSize="12"
                                            Foreground="{DynamicResource SecondaryTextBrush}"
@@ -151,11 +181,19 @@
                             </Border>
 
 
-                            <Border x:Name="CustomBackgroundBorder"
-                                    CornerRadius="10"
-                                    Visibility="Collapsed">
+                            <Border CornerRadius="10">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasCustomBackground}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
                                 <Border.Background>
-                                    <ImageBrush x:Name="BackgroundPreviewImage"
+                                    <ImageBrush ImageSource="{Binding BackgroundPreviewImage}"
                                                 Stretch="UniformToFill"/>
                                 </Border.Background>
                             </Border>
@@ -195,9 +233,8 @@
                             </Button.Style>
                         </Button>
 
-                        <Button x:Name="ClearBackgroundButton"
+                        <Button Command="{Binding ClearBackgroundCommand}"
                                 Content="Tozalash"
-                                Click="ClearBackground_Click"
                                 Background="Transparent"
                                 Foreground="{DynamicResource SecondaryTextBrush}"
                                 Padding="20,10"
@@ -206,7 +243,7 @@
                                 Width="140"
                                 HorizontalAlignment="Left"
                                 Margin="0,10,0,0"
-                                Visibility="Collapsed">
+                                Visibility="{Binding HasCustomBackground, Converter={StaticResource BoolToVisibility}}">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Template">
@@ -243,15 +280,25 @@
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
 
-                    <Border x:Name="SmallFontButton"
-                            Width="90" Height="60"
+                    <Border Width="90" Height="60"
                             BorderThickness="3"
-                            BorderBrush="{DynamicResource BorderBrush}"
                             CornerRadius="8"
                             Background="{DynamicResource SurfaceBrush}"
                             Cursor="Hand"
-                            Margin="0,0,10,0"
-                            MouseDown="SmallFont_Click">
+                            Margin="0,0,10,0">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding SelectSmallFontCommand}"/>
+                        </Border.InputBindings>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSmallFont}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                             <TextBlock Text="Aa"
                                        FontSize="14"
@@ -266,15 +313,25 @@
                     </Border>
 
 
-                    <Border x:Name="MediumFontButton"
-                            Width="90" Height="60"
+                    <Border Width="90" Height="60"
                             BorderThickness="3"
-                            BorderBrush="{DynamicResource BorderBrush}"
                             CornerRadius="8"
                             Background="{DynamicResource SurfaceBrush}"
                             Cursor="Hand"
-                            Margin="0,0,10,0"
-                            MouseDown="MediumFont_Click">
+                            Margin="0,0,10,0">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding SelectMediumFontCommand}"/>
+                        </Border.InputBindings>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsMediumFont}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                             <TextBlock Text="Aa"
                                        FontSize="16"
@@ -289,14 +346,24 @@
                     </Border>
 
 
-                    <Border x:Name="LargeFontButton"
-                            Width="90" Height="60"
+                    <Border Width="90" Height="60"
                             BorderThickness="3"
-                            BorderBrush="{DynamicResource BorderBrush}"
                             CornerRadius="8"
                             Background="{DynamicResource SurfaceBrush}"
-                            Cursor="Hand"
-                            MouseDown="LargeFont_Click">
+                            Cursor="Hand">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding SelectLargeFontCommand}"/>
+                        </Border.InputBindings>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLargeFont}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                             <TextBlock Text="Aa"
                                        FontSize="20"
@@ -316,10 +383,9 @@
                         CornerRadius="8"
                         Padding="15"
                         Margin="0,10,0,0">
-                    <TextBlock x:Name="FontPreviewText"
-                               Text="Bu matnning namunasi. Siz tanlagan o'lcham asosida xabarlar shu tarzda ko'rinadi."
+                    <TextBlock Text="Bu matnning namunasi. Siz tanlagan o'lcham asosida xabarlar shu tarzda ko'rinadi."
                                TextWrapping="Wrap"
-                               FontSize="14"
+                               FontSize="{Binding PreviewFontSize}"
                                Foreground="{DynamicResource TextBrush}"/>
                 </Border>
 
@@ -341,7 +407,7 @@
 
                 <Button Grid.Column="1"
                         Content="Bekor qilish"
-                        Click="Cancel_Click"
+                        Command="{Binding CloseCommand}"
                         Background="Transparent"
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
@@ -375,7 +441,7 @@
 
                 <Button Grid.Column="2"
                         Content="Saqlash"
-                        Click="Save_Click"
+                        Command="{Binding SaveCommand}"
                         Background="{DynamicResource PrimaryBrush}"
                         Foreground="White"
                         Padding="35,10"

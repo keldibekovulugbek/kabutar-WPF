@@ -12,6 +12,7 @@ namespace Kabutar_WPF.Models.Chat
         private string _lastMessage = string.Empty;
         private DateTime _lastMessageTime;
         private int _unreadCount;
+        private bool _isTyping;
 
         public long Id { get; set; }
         public string? ProfilePicture { get; set; }
@@ -41,6 +42,12 @@ namespace Kabutar_WPF.Models.Chat
         {
             get => _unreadCount;
             set { _unreadCount = value; OnPropertyChanged(); }
+        }
+
+        public bool IsTyping
+        {
+            get => _isTyping;
+            set { _isTyping = value; OnPropertyChanged(); }
         }
 
         public bool IsOnline

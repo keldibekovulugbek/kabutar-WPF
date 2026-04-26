@@ -9,9 +9,7 @@
         Background="Transparent"
         ResizeMode="NoResize">
 
-    <Window.DataContext>
-        <vm:RegisterViewModel/>
-    </Window.DataContext>
+    <!--DataContext is set in code-behind via constructor injection-->
 
     <Border Background="{DynamicResource BackgroundBrush}" CornerRadius="0">
         <Grid>
@@ -22,17 +20,24 @@
 
             <!-- Custom Title Bar -->
             <Border Grid.Row="0"
-                    Background="{DynamicResource PrimaryBrush}"
                     CornerRadius="0"
                     MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#8B5CF6" Offset="0"/>
+                        <GradientStop Color="#7C3AED" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
                 <Grid>
-                    <TextBlock Text="Kabutar"
-                               Foreground="White"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Left"
-                               Margin="15,0,0,0"
-                               FontSize="14"
-                               FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
+                        <Image Source="/Assets/kabutar_logo.png" Width="18" Height="18" Margin="0,0,6,0"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <TextBlock Text="Kabutar"
+                                   Foreground="White"
+                                   FontWeight="SemiBold"
+                                   FontSize="13"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
 
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Right"

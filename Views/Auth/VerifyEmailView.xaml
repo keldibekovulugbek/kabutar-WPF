@@ -8,9 +8,7 @@
         Background="Transparent"
         ResizeMode="NoResize">
 
-    <Window.DataContext>
-        <vm:VerifyEmailViewModel/>
-    </Window.DataContext>
+    <!--DataContext is set in code-behind via constructor injection-->
 
     <Border Background="{DynamicResource BackgroundBrush}" CornerRadius="0">
         <Grid x:Name="RootGrid">

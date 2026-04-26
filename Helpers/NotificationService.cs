@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace Kabutar_WPF.Helpers
 {
@@ -58,9 +59,21 @@ namespace Kabutar_WPF.Helpers
             timer.Start();
         }
 
+        public static void ShowWindowsToast(string title, string message)
+        {
+            try
+            {
+                new ToastContentBuilder()
+                    .AddAppLogoOverride(null, ToastGenericAppLogoCrop.Circle)
+                    .AddText(title)
+                    .AddText(message)
+                    .Show();
+            }
+            catch { }
+        }
+
         private static Border CreateNotification(string message, NotificationType type)
         {
-            // Determine colors based on type
             Brush backgroundColor;
             Brush iconColor;
             string icon;

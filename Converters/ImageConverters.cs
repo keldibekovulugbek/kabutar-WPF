@@ -88,16 +88,13 @@ namespace Kabutar_WPF.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            var resources = System.Windows.Application.Current.Resources;
             if (value is bool isRead && isRead)
-            {
-                return "#4FC3F7";
-            }
-            return "#9E9E9E";
+                return resources.Contains("ReadStatusBlueBrush") ? resources["ReadStatusBlueBrush"] : System.Windows.Media.Brushes.CornflowerBlue;
+            return resources.Contains("ReadStatusGrayBrush") ? resources["ReadStatusGrayBrush"] : System.Windows.Media.Brushes.Gray;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotImplementedException();
-        }
     }
 }

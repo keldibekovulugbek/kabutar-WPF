@@ -4,5 +4,6 @@ namespace Kabutar_WPF.Models.Messages
     {
         public long ReceiverId { get; set; }
         public string Content { get; set; } = string.Empty;
+        public long? ReplyToMessageId { get; set; }
     }
 }

@@ -1,17 +1,17 @@
 using System;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using Kabutar_WPF.Core;
+using Kabutar_WPF.Helpers;
 using Kabutar_WPF.Models.Auth;
 using Kabutar_WPF.Services;
-using Kabutar_WPF.Views.Auth;
 
 namespace Kabutar_WPF.ViewModels.Auth
 {
     public class ForgotPasswordViewModel : ObservableObject
     {
         private readonly IAuthService _authService;
+        private readonly IWindowNavigationService _navigation;
         private string _email = string.Empty;
         private string _code = string.Empty;
         private string _newPassword = string.Empty;
@@ -19,10 +19,12 @@ namespace Kabutar_WPF.ViewModels.Auth
         private bool _isLoading;
         private bool _isCodeSent;
 
-        public ForgotPasswordViewModel()
+        public event Action? RequestClose;
+
+        public ForgotPasswordViewModel(IAuthService authService, IWindowNavigationService navigation)
         {
-            var apiClient = ApiClient.Instance;
-            _authService = new AuthService(apiClient);
+            _authService = authService;
+            _navigation = navigation;
 
             SendCodeCommand = new RelayCommand(async _ => await SendCodeAsync(), _ => CanSendCode());
             ResetPasswordCommand = new RelayCommand(async _ => await ResetPasswordAsync(), _ => CanResetPassword());
@@ -53,9 +55,7 @@ namespace Kabutar_WPF.ViewModels.Auth
             set
             {
                 if (SetProperty(ref _errorMessage, value))
-                {
                     OnPropertyChanged(nameof(HasError));
-                }
             }
         }
 
@@ -77,18 +77,13 @@ namespace Kabutar_WPF.ViewModels.Auth
         public ICommand ResetPasswordCommand { get; }
         public ICommand NavigateBackCommand { get; }
 
-        private bool CanSendCode()
-        {
-            return !string.IsNullOrWhiteSpace(Email) && !IsLoading;
-        }
+        private bool CanSendCode() => !string.IsNullOrWhiteSpace(Email) && !IsLoading;
 
-        private bool CanResetPassword()
-        {
-            return !string.IsNullOrWhiteSpace(Email) &&
-                   !string.IsNullOrWhiteSpace(Code) &&
-                   !string.IsNullOrWhiteSpace(NewPassword) &&
-                   !IsLoading;
-        }
+        private bool CanResetPassword() =>
+            !string.IsNullOrWhiteSpace(Email) &&
+            !string.IsNullOrWhiteSpace(Code) &&
+            !string.IsNullOrWhiteSpace(NewPassword) &&
+            !IsLoading;
 
         private async Task SendCodeAsync()
         {
@@ -97,21 +92,12 @@ namespace Kabutar_WPF.ViewModels.Auth
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 
-                var request = new SendCodeRequest
-                {
-                    Email = Email.Trim()
-                };
-
-                var success = await _authService.SendPasswordResetCodeAsync(request);
+                var success = await _authService.SendPasswordResetCodeAsync(new SendCodeRequest { Email = Email.Trim() });
 
                 if (success)
-                {
                     IsCodeSent = true;
-                }
                 else
-                {
                     ErrorMessage = "Failed to send code. Please check your email and try again.";
-                }
             }
             catch (Exception ex)
             {
@@ -141,28 +127,10 @@ namespace Kabutar_WPF.ViewModels.Auth
 
                 if (success)
                 {
-                    // Password reset successful - navigate to login view
-                    Application.Current.Dispatcher.Invoke(async () =>
-                    {
-                        Kabutar_WPF.Helpers.NotificationService.Show("Parol muvaffaqiyatli o'zgartirildi! Yangi parol bilan tizimga kirishingiz mumkin.",
-                            Kabutar_WPF.Helpers.NotificationType.Success);
-
-                        // Wait a bit for notification to be visible
-                        await System.Threading.Tasks.Task.Delay(1500);
-
-                        var loginView = new LoginView();
-                        loginView.Show();
-
-                        // Close current window
-                        foreach (Window window in Application.Current.Windows)
-                        {
-                            if (window.DataContext == this)
-                            {
-                                window.Close();
-                                break;
-                            }
-                        }
-                    });
+                    NotificationService.Show("Parol muvaffaqiyatli o'zgartirildi! Yangi parol bilan tizimga kirishingiz mumkin.", NotificationType.Success);
+                    await System.Threading.Tasks.Task.Delay(1500);
+                    _navigation.ShowLoginView();
+                    RequestClose?.Invoke();
                 }
                 else
                 {
@@ -183,7 +151,6 @@ namespace Kabutar_WPF.ViewModels.Auth
         {
             if (IsCodeSent)
             {
-                // Go back to email entry step
                 IsCodeSent = false;
                 Code = string.Empty;
                 NewPassword = string.Empty;
@@ -191,22 +158,8 @@ namespace Kabutar_WPF.ViewModels.Auth
             }
             else
             {
-                // Navigate back to login
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    var loginView = new LoginView();
-                    loginView.Show();
-
-                    // Close current window
-                    foreach (Window window in Application.Current.Windows)
-                    {
-                        if (window.DataContext == this)
-                        {
-                            window.Close();
-                            break;
-                        }
-                    }
-                });
+                _navigation.ShowLoginView();
+                RequestClose?.Invoke();
             }
         }
     }

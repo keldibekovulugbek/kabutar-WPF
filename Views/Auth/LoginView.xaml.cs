@@ -8,21 +8,19 @@ namespace Kabutar_WPF.Views.Auth
 {
     public partial class LoginView : Window
     {
-        public LoginView()
+        public LoginView(LoginViewModel viewModel)
         {
             InitializeComponent();
+            DataContext = viewModel;
+            viewModel.RequestClose += Close;
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
-            {
                 WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-            }
             else
-            {
                 DragMove();
-            }
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)
@@ -32,48 +30,26 @@ namespace Kabutar_WPF.Views.Auth
 
         private void ThemeToggle_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            if (button == null) return;
-
-            var app = Application.Current;
+            if (sender is not Button button) return;
             var isDark = button.Content.ToString() == "🌙";
+            var app = Application.Current;
 
             app.Resources.MergedDictionaries.Clear();
-
-            if (isDark)
-            {
-                app.Resources.MergedDictionaries.Add(new ResourceDictionary
-                {
-                    Source = new Uri("pack://application:,,,/Resources/Themes/DarkTheme.xaml")
-                });
-                button.Content = "☀";
-            }
-            else
-            {
-                app.Resources.MergedDictionaries.Add(new ResourceDictionary
-                {
-                    Source = new Uri("pack://application:,,,/Resources/Themes/LightTheme.xaml")
-                });
-                button.Content = "🌙";
-            }
-
-            // Re-add styles
             app.Resources.MergedDictionaries.Add(new ResourceDictionary
             {
-                Source = new Uri("pack://application:,,,/Resources/Styles/ButtonStyles.xaml")
+                Source = new Uri(isDark
+                    ? "pack://application:,,,/Resources/Themes/DarkTheme.xaml"
+                    : "pack://application:,,,/Resources/Themes/LightTheme.xaml")
             });
-            app.Resources.MergedDictionaries.Add(new ResourceDictionary
-            {
-                Source = new Uri("pack://application:,,,/Resources/Styles/TextBoxStyles.xaml")
-            });
+            button.Content = isDark ? "☀" : "🌙";
+            app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/Resources/Styles/ButtonStyles.xaml") });
+            app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/Resources/Styles/TextBoxStyles.xaml") });
         }
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (DataContext is LoginViewModel viewModel)
-            {
-                viewModel.Password = PasswordBox.Password;
-            }
+            if (DataContext is LoginViewModel vm)
+                vm.Password = PasswordBox.Password;
         }
     }
 }

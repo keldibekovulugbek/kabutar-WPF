@@ -15,7 +15,7 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8">
+                            CornerRadius="12">
                         <Grid>
                             <TextBlock Text="{TemplateBinding Tag}"
                                        Foreground="#999999"
@@ -58,7 +58,7 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8">
+                            CornerRadius="12">
                         <Grid>
                             <TextBlock x:Name="PlaceholderText"
                                        Text="{TemplateBinding Tag}"

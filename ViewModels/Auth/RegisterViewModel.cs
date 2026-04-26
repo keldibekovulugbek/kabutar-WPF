@@ -1,17 +1,16 @@
 using System;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using Kabutar_WPF.Core;
 using Kabutar_WPF.Models.Auth;
 using Kabutar_WPF.Services;
-using Kabutar_WPF.Views.Auth;
 
 namespace Kabutar_WPF.ViewModels.Auth
 {
     public class RegisterViewModel : ObservableObject
     {
         private readonly IAuthService _authService;
+        private readonly IWindowNavigationService _navigation;
         private string _firstname = string.Empty;
         private string _lastname = string.Empty;
         private string _email = string.Empty;
@@ -20,10 +19,12 @@ namespace Kabutar_WPF.ViewModels.Auth
         private string _errorMessage = string.Empty;
         private bool _isLoading;
 
-        public RegisterViewModel()
+        public event Action? RequestClose;
+
+        public RegisterViewModel(IAuthService authService, IWindowNavigationService navigation)
         {
-            var apiClient = ApiClient.Instance;
-            _authService = new AuthService(apiClient);
+            _authService = authService;
+            _navigation = navigation;
 
             RegisterCommand = new RelayCommand(async _ => await RegisterAsync(), _ => CanRegister());
             NavigateToLoginCommand = new RelayCommand(_ => NavigateToLogin());
@@ -65,9 +66,7 @@ namespace Kabutar_WPF.ViewModels.Auth
             set
             {
                 if (SetProperty(ref _errorMessage, value))
-                {
                     OnPropertyChanged(nameof(HasError));
-                }
             }
         }
 
@@ -82,15 +81,13 @@ namespace Kabutar_WPF.ViewModels.Auth
         public ICommand RegisterCommand { get; }
         public ICommand NavigateToLoginCommand { get; }
 
-        private bool CanRegister()
-        {
-            return !string.IsNullOrWhiteSpace(Firstname) &&
-                   !string.IsNullOrWhiteSpace(Lastname) &&
-                   !string.IsNullOrWhiteSpace(Email) &&
-                   !string.IsNullOrWhiteSpace(Username) &&
-                   !string.IsNullOrWhiteSpace(Password) &&
-                   !IsLoading;
-        }
+        private bool CanRegister() =>
+            !string.IsNullOrWhiteSpace(Firstname) &&
+            !string.IsNullOrWhiteSpace(Lastname) &&
+            !string.IsNullOrWhiteSpace(Email) &&
+            !string.IsNullOrWhiteSpace(Username) &&
+            !string.IsNullOrWhiteSpace(Password) &&
+            !IsLoading;
 
         private async Task RegisterAsync()
         {
@@ -112,29 +109,8 @@ namespace Kabutar_WPF.ViewModels.Auth
 
                 if (success)
                 {
-                    // Registration successful - navigate to verify email view
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        var verifyEmailView = new VerifyEmailView();
-
-                        // Pass email to VerifyEmailViewModel if needed
-                        if (verifyEmailView.DataContext is VerifyEmailViewModel viewModel)
-                        {
-                            viewModel.Email = Email;
-                        }
-
-                        verifyEmailView.Show();
-
-                        // Close current window
-                        foreach (Window window in Application.Current.Windows)
-                        {
-                            if (window.DataContext == this)
-                            {
-                                window.Close();
-                                break;
-                            }
-                        }
-                    });
+                    _navigation.ShowVerifyEmailView(Email);
+                    RequestClose?.Invoke();
                 }
                 else
                 {
@@ -153,21 +129,8 @@ namespace Kabutar_WPF.ViewModels.Auth
 
         private void NavigateToLogin()
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var loginView = new LoginView();
-                loginView.Show();
-
-                // Close current window
-                foreach (Window window in Application.Current.Windows)
-                {
-                    if (window.DataContext == this)
-                    {
-                        window.Close();
-                        break;
-                    }
-                }
-            });
+            _navigation.ShowLoginView();
+            RequestClose?.Invoke();
         }
     }
 }

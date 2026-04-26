@@ -1,7 +1,6 @@
 using System.Windows;
+using Kabutar_WPF.Core;
 using Kabutar_WPF.Services;
-using Kabutar_WPF.Views;
-using Kabutar_WPF.Views.Auth;
 
 namespace Kabutar_WPF
 {
@@ -13,17 +12,18 @@ namespace Kabutar_WPF
 
             var apiClient = ApiClient.Instance;
             var authService = new AuthService(apiClient);
+            var userService = new UserService(apiClient);
+            var searchService = new SearchService(apiClient);
+            var messageService = new MessageService(apiClient);
+            var chatService = new ChatService(apiClient);
+
+            var navigation = new WindowNavigationService(
+                authService, searchService, messageService, chatService, userService);
 
             if (authService.TryRestoreSession())
-            {
-                var mainView = new MainView();
-                mainView.Show();
-            }
+                navigation.ShowMainView();
             else
-            {
-                var loginView = new LoginView();
-                loginView.Show();
-            }
+                navigation.ShowLoginView();
         }
     }
 }

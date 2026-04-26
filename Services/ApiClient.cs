@@ -61,31 +61,24 @@ namespace Kabutar_WPF.Services
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var relativeEndpoint = endpoint.TrimStart('/');
-                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
-                Console.WriteLine($"[API] Sending POST to: {fullUrl}");
-                Console.WriteLine($"[API] Request body: {json}");
 
                 var response = await _httpClient.PostAsync(relativeEndpoint, content);
 
-                Console.WriteLine($"[API] Response status: {response.StatusCode}");
 
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"[API] Error response: {errorContent}");
 
                     var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
                     throw new Exception(errorMessage);
                 }
 
                 var responseJson = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[API] Response body: {responseJson}");
 
                 return JsonConvert.DeserializeObject<TResponse>(responseJson);
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine($"[API] HTTP error: {ex.Message}");
                 throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
             }
             catch (Exception ex) when (ex.Message.StartsWith("Server bilan") || ex.Message.Contains("Email") || ex.Message.Contains("Parol") || ex.Message.Contains("Foydalanuvchi"))
@@ -94,7 +87,6 @@ namespace Kabutar_WPF.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[API] Error: {ex.Message}");
                 throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
             }
         }
@@ -107,13 +99,9 @@ namespace Kabutar_WPF.Services
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var relativeEndpoint = endpoint.TrimStart('/');
-                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
-                Console.WriteLine($"[API] Sending POST to: {fullUrl}");
-                Console.WriteLine($"[API] Request body: {json}");
 
                 var response = await _httpClient.PostAsync(relativeEndpoint, content);
 
-                Console.WriteLine($"[API] Response status: {response.StatusCode}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -121,19 +109,16 @@ namespace Kabutar_WPF.Services
                 }
 
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[API] Error response: {errorContent}");
 
                 var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
                 throw new Exception(errorMessage);
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine($"[API] Network error: {ex.Message}");
                 throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
             }
             catch (TaskCanceledException ex)
             {
-                Console.WriteLine($"[API] Timeout error: {ex.Message}");
                 throw new Exception("So'rov vaqti tugadi. Internet tezligingizni tekshiring.", ex);
             }
             catch (Exception ex) when (ex.Message.StartsWith("Server bilan") || ex.Message.Contains("Email") || ex.Message.Contains("Parol") || ex.Message.Contains("Foydalanuvchi"))
@@ -142,7 +127,6 @@ namespace Kabutar_WPF.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[API] Unexpected error: {ex.Message}");
                 throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
             }
         }
@@ -230,30 +214,24 @@ namespace Kabutar_WPF.Services
             try
             {
                 var relativeEndpoint = endpoint.TrimStart('/');
-                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
-                Console.WriteLine($"[API] Sending GET to: {fullUrl}");
 
                 var response = await _httpClient.GetAsync(relativeEndpoint);
 
-                Console.WriteLine($"[API] Response status: {response.StatusCode}");
 
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"[API] Error response: {errorContent}");
 
                     var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
                     throw new Exception(errorMessage);
                 }
 
                 var responseJson = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[API] Response body: {responseJson}");
 
                 return JsonConvert.DeserializeObject<TResponse>(responseJson);
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine($"[API] HTTP error: {ex.Message}");
                 throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
             }
             catch (Exception ex) when (ex.Message.StartsWith("Server bilan") || ex.Message.Contains("Email") || ex.Message.Contains("Parol") || ex.Message.Contains("Foydalanuvchi"))
@@ -262,7 +240,6 @@ namespace Kabutar_WPF.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[API] Error: {ex.Message}");
                 throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
             }
         }
@@ -275,13 +252,9 @@ namespace Kabutar_WPF.Services
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var relativeEndpoint = endpoint.TrimStart('/');
-                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
-                Console.WriteLine($"[API] Sending PUT to: {fullUrl}");
-                Console.WriteLine($"[API] Request body: {json}");
 
                 var response = await _httpClient.PutAsync(relativeEndpoint, content);
 
-                Console.WriteLine($"[API] Response status: {response.StatusCode}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -289,14 +262,12 @@ namespace Kabutar_WPF.Services
                 }
 
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[API] Error response: {errorContent}");
 
                 var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
                 throw new Exception(errorMessage);
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine($"[API] Network error: {ex.Message}");
                 throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
             }
             catch (Exception ex) when (ex.Message.StartsWith("Server bilan"))
@@ -305,7 +276,6 @@ namespace Kabutar_WPF.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[API] Unexpected error: {ex.Message}");
                 throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
             }
         }
@@ -318,31 +288,24 @@ namespace Kabutar_WPF.Services
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var relativeEndpoint = endpoint.TrimStart('/');
-                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
-                Console.WriteLine($"[API] Sending PUT to: {fullUrl}");
-                Console.WriteLine($"[API] Request body: {json}");
 
                 var response = await _httpClient.PutAsync(relativeEndpoint, content);
 
-                Console.WriteLine($"[API] Response status: {response.StatusCode}");
 
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"[API] Error response: {errorContent}");
 
                     var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
                     throw new Exception(errorMessage);
                 }
 
                 var responseJson = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[API] Response body: {responseJson}");
 
                 return JsonConvert.DeserializeObject<TResponse>(responseJson);
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine($"[API] Network error: {ex.Message}");
                 throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
             }
             catch (Exception ex) when (ex.Message.StartsWith("Server bilan"))
@@ -351,7 +314,6 @@ namespace Kabutar_WPF.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[API] Unexpected error: {ex.Message}");
                 throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
             }
         }
@@ -361,18 +323,14 @@ namespace Kabutar_WPF.Services
             try
             {
                 var relativeEndpoint = endpoint.TrimStart('/');
-                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
-                Console.WriteLine($"[API] Sending DELETE to: {fullUrl}");
 
                 var response = await _httpClient.DeleteAsync(relativeEndpoint);
 
-                Console.WriteLine($"[API] Response status: {response.StatusCode}");
 
                 if (response.IsSuccessStatusCode)
                     return true;
 
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[API] Error response: {errorContent}");
 
                 var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
                 throw new Exception(errorMessage);
@@ -428,12 +386,9 @@ namespace Kabutar_WPF.Services
             try
             {
                 var relativeEndpoint = endpoint.TrimStart('/');
-                var fullUrl = $"{BaseUrl}{relativeEndpoint}";
-                Console.WriteLine($"[API] Sending POST (multipart) to: {fullUrl}");
 
                 var response = await _httpClient.PostAsync(relativeEndpoint, content);
 
-                Console.WriteLine($"[API] Response status: {response.StatusCode}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -441,14 +396,12 @@ namespace Kabutar_WPF.Services
                 }
 
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"[API] Error response: {errorContent}");
 
                 var errorMessage = ParseErrorMessage(errorContent, (int)response.StatusCode);
                 throw new Exception(errorMessage);
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine($"[API] Network error: {ex.Message}");
                 throw new Exception("Server bilan bog'lanishda xatolik. Internet aloqangizni tekshiring.", ex);
             }
             catch (Exception ex) when (ex.Message.StartsWith("Server bilan"))
@@ -457,7 +410,6 @@ namespace Kabutar_WPF.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[API] Unexpected error: {ex.Message}");
                 throw new Exception("Kutilmagan xatolik yuz berdi. Iltimos, qayta urinib ko'ring.", ex);
             }
         }

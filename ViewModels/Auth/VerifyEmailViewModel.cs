@@ -1,26 +1,28 @@
 using System;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using Kabutar_WPF.Core;
+using Kabutar_WPF.Helpers;
 using Kabutar_WPF.Models.Auth;
 using Kabutar_WPF.Services;
-using Kabutar_WPF.Views.Auth;
 
 namespace Kabutar_WPF.ViewModels.Auth
 {
     public class VerifyEmailViewModel : ObservableObject
     {
         private readonly IAuthService _authService;
+        private readonly IWindowNavigationService _navigation;
         private string _email = string.Empty;
         private string _code = string.Empty;
         private string _errorMessage = string.Empty;
         private bool _isLoading;
 
-        public VerifyEmailViewModel()
+        public event Action? RequestClose;
+
+        public VerifyEmailViewModel(IAuthService authService, IWindowNavigationService navigation)
         {
-            var apiClient = ApiClient.Instance;
-            _authService = new AuthService(apiClient);
+            _authService = authService;
+            _navigation = navigation;
 
             VerifyCommand = new RelayCommand(async _ => await VerifyEmailAsync(), _ => CanVerify());
             NavigateBackCommand = new RelayCommand(_ => NavigateBack());
@@ -44,9 +46,7 @@ namespace Kabutar_WPF.ViewModels.Auth
             set
             {
                 if (SetProperty(ref _errorMessage, value))
-                {
                     OnPropertyChanged(nameof(HasError));
-                }
             }
         }
 
@@ -61,12 +61,10 @@ namespace Kabutar_WPF.ViewModels.Auth
         public ICommand VerifyCommand { get; }
         public ICommand NavigateBackCommand { get; }
 
-        private bool CanVerify()
-        {
-            return !string.IsNullOrWhiteSpace(Email) &&
-                   !string.IsNullOrWhiteSpace(Code) &&
-                   !IsLoading;
-        }
+        private bool CanVerify() =>
+            !string.IsNullOrWhiteSpace(Email) &&
+            !string.IsNullOrWhiteSpace(Code) &&
+            !IsLoading;
 
         private async Task VerifyEmailAsync()
         {
@@ -85,28 +83,10 @@ namespace Kabutar_WPF.ViewModels.Auth
 
                 if (success)
                 {
-                    // Verification successful - navigate to login view
-                    Application.Current.Dispatcher.Invoke(async () =>
-                    {
-                        Kabutar_WPF.Helpers.NotificationService.Show("Email tasdiqlandi! Tizimga kirishingiz mumkin.",
-                            Kabutar_WPF.Helpers.NotificationType.Success);
-
-                        // Wait a bit for notification to be visible
-                        await System.Threading.Tasks.Task.Delay(1500);
-
-                        var loginView = new LoginView();
-                        loginView.Show();
-
-                        // Close current window
-                        foreach (Window window in Application.Current.Windows)
-                        {
-                            if (window.DataContext == this)
-                            {
-                                window.Close();
-                                break;
-                            }
-                        }
-                    });
+                    NotificationService.Show("Email tasdiqlandi! Tizimga kirishingiz mumkin.", NotificationType.Success);
+                    await System.Threading.Tasks.Task.Delay(1500);
+                    _navigation.ShowLoginView();
+                    RequestClose?.Invoke();
                 }
                 else
                 {
@@ -125,21 +105,8 @@ namespace Kabutar_WPF.ViewModels.Auth
 
         private void NavigateBack()
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var registerView = new RegisterView();
-                registerView.Show();
-
-                // Close current window
-                foreach (Window window in Application.Current.Windows)
-                {
-                    if (window.DataContext == this)
-                    {
-                        window.Close();
-                        break;
-                    }
-                }
-            });
+            _navigation.ShowRegisterView();
+            RequestClose?.Invoke();
         }
     }
 }
