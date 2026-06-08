@@ -1,40 +1,34 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Dark Theme (Soft Dark) -->
+    <!-- Dark Theme — Clean Minimal -->
 
-    <!-- Backgrounds -->
-    <SolidColorBrush x:Key="BackgroundBrush"          Color="#0F1117"/>
-    <SolidColorBrush x:Key="SurfaceBrush"              Color="#1A1D27"/>
-    <SolidColorBrush x:Key="SecondaryBackgroundBrush"  Color="#1F2335"/>
-    <SolidColorBrush x:Key="InputBackgroundBrush"      Color="#252840"/>
-    <SolidColorBrush x:Key="HoverBrush"                Color="#252840"/>
-    <SolidColorBrush x:Key="PrimaryLightBrush"         Color="#2D1F4E"/>
+    <SolidColorBrush x:Key="BackgroundBrush"         Color="#111118"/>
+    <SolidColorBrush x:Key="SurfaceBrush"             Color="#18181F"/>
+    <SolidColorBrush x:Key="SecondaryBackgroundBrush" Color="#1E1E28"/>
+    <SolidColorBrush x:Key="InputBackgroundBrush"     Color="#22222E"/>
+    <SolidColorBrush x:Key="HoverBrush"               Color="#26263A"/>
+    <SolidColorBrush x:Key="PrimaryLightBrush"        Color="#2D1F52"/>
 
-    <!-- Text Colors -->
-    <SolidColorBrush x:Key="TextBrush"           Color="#E2E4EF"/>
-    <SolidColorBrush x:Key="SecondaryTextBrush"  Color="#9097B0"/>
-    <SolidColorBrush x:Key="PlaceholderTextBrush" Color="#6B7280"/>
+    <SolidColorBrush x:Key="TextBrush"            Color="#F1F1F5"/>
+    <SolidColorBrush x:Key="SecondaryTextBrush"   Color="#8A8AA0"/>
+    <SolidColorBrush x:Key="PlaceholderTextBrush" Color="#5C5C74"/>
 
-    <!-- Primary Purple -->
-    <SolidColorBrush x:Key="PrimaryBrush"        Color="#8B5CF6"/>
-    <SolidColorBrush x:Key="PrimaryHoverBrush"   Color="#7C3AED"/>
-    <SolidColorBrush x:Key="PrimaryPressedBrush" Color="#6D28D9"/>
+    <SolidColorBrush x:Key="PrimaryBrush"        Color="#7C3AED"/>
+    <SolidColorBrush x:Key="PrimaryHoverBrush"   Color="#6D28D9"/>
+    <SolidColorBrush x:Key="PrimaryPressedBrush" Color="#5B21B6"/>
 
-    <!-- Borders -->
-    <SolidColorBrush x:Key="BorderBrush" Color="#2D3148"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="#26263A"/>
 
-    <!-- Message Bubbles -->
-    <SolidColorBrush x:Key="SentMessageBrush"           Color="#6D28D9"/>
-    <SolidColorBrush x:Key="ReceivedMessageBrush"       Color="#1F2335"/>
-    <SolidColorBrush x:Key="SentMessageTextBrush"       Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="ReceivedMessageTextBrush"   Color="#E2E4EF"/>
-    <SolidColorBrush x:Key="SentMessageTimeBrush"       Color="#C4B5FD"/>
-    <SolidColorBrush x:Key="ReceivedMessageTimeBrush"   Color="#6B7280"/>
-    <SolidColorBrush x:Key="ReadStatusBlueBrush"        Color="#A78BFA"/>
-    <SolidColorBrush x:Key="ReadStatusGrayBrush"        Color="#4B5563"/>
+    <SolidColorBrush x:Key="SentMessageBrush"         Color="#6D28D9"/>
+    <SolidColorBrush x:Key="ReceivedMessageBrush"     Color="#22222E"/>
+    <SolidColorBrush x:Key="SentMessageTextBrush"     Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ReceivedMessageTextBrush" Color="#F1F1F5"/>
+    <SolidColorBrush x:Key="SentMessageTimeBrush"     Color="#C4B5FD"/>
+    <SolidColorBrush x:Key="ReceivedMessageTimeBrush" Color="#5C5C74"/>
+    <SolidColorBrush x:Key="ReadStatusBlueBrush"      Color="#A78BFA"/>
+    <SolidColorBrush x:Key="ReadStatusGrayBrush"      Color="#3F3F56"/>
 
-    <!-- Status Colors -->
     <SolidColorBrush x:Key="ErrorBrush"   Color="#EF4444"/>
     <SolidColorBrush x:Key="SuccessBrush" Color="#10B981"/>
     <SolidColorBrush x:Key="WarningBrush" Color="#F59E0B"/>

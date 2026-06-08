@@ -3,74 +3,85 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:Kabutar_WPF.ViewModels.Auth"
         xmlns:core="clr-namespace:Kabutar_WPF.Core"
-        Title="Kabutar - Login"
-        Height="600"
-        Width="900"
+        Title="Kabutar"
+        Height="580" Width="420"
         WindowStyle="None"
         ResizeMode="NoResize"
+        AllowsTransparency="True"
         WindowStartupLocation="CenterScreen"
-        Background="{DynamicResource BackgroundBrush}">
-
-    <!--DataContext is set in code-behind via constructor injection-->
+        Background="Transparent">
 
     <Window.InputBindings>
         <KeyBinding Key="Return" Command="{Binding LoginCommand}"/>
     </Window.InputBindings>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Border Background="{DynamicResource BackgroundBrush}"
+            CornerRadius="16"
+            MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" Opacity="0.18" BlurRadius="40" ShadowDepth="0"/>
+        </Border.Effect>
 
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <Border Grid.Row="0"
-                MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#8B5CF6" Offset="0"/>
-                    <GradientStop Color="#7C3AED" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
-            <Grid>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
-                    <Image Source="/Assets/kabutar_logo.png" Width="18" Height="18" Margin="0,0,6,0"
-                           RenderOptions.BitmapScalingMode="HighQuality"/>
+            <!-- Title bar -->
+            <Grid Grid.Row="0" Margin="8,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                    <Image Source="/Assets/kabutar_logo.png" Width="16" Height="16"
+                           Margin="0,0,6,0" RenderOptions.BitmapScalingMode="HighQuality"/>
                     <TextBlock Text="Kabutar"
-                               Foreground="White"
-                               FontWeight="SemiBold"
-                               FontSize="13"
+                               FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource SecondaryTextBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Right">
-
-                    <Button Content="🌙"
-                            Width="35"
-                            Height="35"
-                            Background="Transparent"
-                            Foreground="White"
-                            BorderThickness="0"
-                            FontSize="16"
-                            Cursor="Hand"
-                            Click="ThemeToggle_Click"/>
-
-
-                    <Button Content="✕"
-                            Width="35"
-                            Height="35"
-                            Foreground="White"
-                            BorderThickness="0"
-                            FontSize="16"
-                            Cursor="Hand"
-                            Click="Close_Click">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Width="32" Height="32" Background="Transparent" BorderThickness="0"
+                            FontSize="15" Cursor="Hand" Click="ThemeToggle_Click"
+                            Foreground="{DynamicResource SecondaryTextBrush}"
+                            Content="🌙" ToolTip="Mavzuni almashtirish">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Width="32" Height="32" BorderThickness="0" FontSize="14"
+                            Cursor="Hand" Click="Close_Click" Content="✕"
+                            Foreground="{DynamicResource SecondaryTextBrush}">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#E81123"/>
+                                        <Setter Property="Background" Value="#FFEEEE"/>
+                                        <Setter Property="Foreground" Value="#EF4444"/>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -78,92 +89,81 @@
                     </Button>
                 </StackPanel>
             </Grid>
-        </Border>
 
+            <!-- Content -->
+            <StackPanel Grid.Row="1"
+                        VerticalAlignment="Center"
+                        Margin="40,0,40,32">
 
-        <Grid Grid.Row="1">
-            <StackPanel VerticalAlignment="Center"
-                        HorizontalAlignment="Center"
-                        Width="450">
-
-
-                <!-- Logo + App name -->
-                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,24">
-                    <Image Source="/Assets/kabutar_logo.png"
-                           Width="64" Height="64"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,10"
-                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <TextBlock Text="Kabutar"
-                               FontSize="32"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Foreground="{DynamicResource TextBrush}"/>
-                </StackPanel>
+                <!-- Logo -->
+                <Image Source="/Assets/kabutar_logo.png"
+                       Width="52" Height="52"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,16"
+                       RenderOptions.BitmapScalingMode="HighQuality"/>
 
                 <TextBlock Text="Xush kelibsiz"
-                           FontSize="22"
-                           FontWeight="SemiBold"
+                           FontSize="22" FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource TextBrush}"
+                           Margin="0,0,0,4"/>
+
+                <TextBlock Text="Hisobingizga kiring"
+                           FontSize="13"
                            HorizontalAlignment="Center"
                            Foreground="{DynamicResource SecondaryTextBrush}"
-                           Margin="0,0,0,32"/>
-
+                           Margin="0,0,0,28"/>
 
                 <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource ModernTextBoxStyle}"
-                         Tag="Username or Email"
-                         Margin="0,0,0,15"/>
-
+                         Tag="Username yoki Email"
+                         Height="46"
+                         Margin="0,0,0,10"/>
 
                 <PasswordBox x:Name="PasswordBox"
                              Style="{StaticResource ModernPasswordBoxStyle}"
-                             Tag="Password"
+                             Tag="Parol"
+                             Height="46"
                              core:PasswordBoxHelper.Attach="True"
                              PasswordChanged="PasswordBox_PasswordChanged"
-                             Margin="0,0,0,10"/>
+                             Margin="0,0,0,8"/>
 
-
-                <Button Content="Forgot password?"
+                <Button Content="Parolni unutdingizmi?"
                         Style="{StaticResource TextButtonStyle}"
-                        HorizontalAlignment="Left"
-                        Margin="0,0,0,25"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,0,20"
                         Command="{Binding NavigateToForgotPasswordCommand}"/>
 
-
-                <Button Content="Log in"
+                <Button Content="Kirish"
                         Style="{StaticResource PrimaryButtonStyle}"
-                        Margin="0,0,0,20"
+                        Height="46"
+                        Margin="0,0,0,18"
                         Command="{Binding LoginCommand}"/>
 
-
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Center">
-                    <TextBlock Text="New user? "
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Yangi foydalanuvchimisiz? "
                                Foreground="{DynamicResource SecondaryTextBrush}"
-                               FontSize="14"/>
-                    <Button Content="Sign up"
+                               FontSize="13"/>
+                    <Button Content="Ro'yxatdan o'ting"
                             Style="{StaticResource TextButtonStyle}"
                             Command="{Binding NavigateToRegisterCommand}"/>
                 </StackPanel>
 
-
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource ErrorBrush}"
-                           FontSize="14"
+                           FontSize="13"
                            HorizontalAlignment="Center"
-                           Margin="0,15,0,0"
+                           Margin="0,14,0,0"
                            TextWrapping="Wrap"
                            Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-
-                <TextBlock Text="Loading..."
+                <TextBlock Text="Yuklanmoqda..."
                            Foreground="{DynamicResource PrimaryBrush}"
-                           FontSize="14"
+                           FontSize="13"
                            HorizontalAlignment="Center"
-                           Margin="0,15,0,0"
+                           Margin="0,14,0,0"
                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
             </StackPanel>
         </Grid>
-    </Grid>
+    </Border>
 </Window>
